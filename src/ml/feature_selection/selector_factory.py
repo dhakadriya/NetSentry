@@ -35,23 +35,23 @@ def get_feature_selector(
     **kwargs,
 ) -> BaseEstimator:
     """Factory creating configured feature selector instance corresponding to strategy."""
-    strategy_str = str(strategy).lower()
+    strategy_val = getattr(strategy, "value", str(strategy)).lower()
 
-    if strategy_str in (FeatureSelectionStrategy.NONE.value, "none"):
+    if strategy_val in (FeatureSelectionStrategy.NONE.value, "none"):
         return PassThroughSelector()
 
-    elif strategy_str in (FeatureSelectionStrategy.VARIANCE_THRESHOLD.value, "variance_threshold"):
+    elif strategy_val in (FeatureSelectionStrategy.VARIANCE_THRESHOLD.value, "variance_threshold"):
         threshold = kwargs.get("threshold", 0.01)
         return VarianceThresholdSelector(threshold=threshold, min_features=kwargs.get("min_features", 5))
 
-    elif strategy_str in (FeatureSelectionStrategy.CORRELATION_FILTER.value, "correlation_filter"):
+    elif strategy_val in (FeatureSelectionStrategy.CORRELATION_FILTER.value, "correlation_filter"):
         threshold = kwargs.get("threshold", 0.85)
         return CorrelationFilterSelector(threshold=threshold, min_features=kwargs.get("min_features", 8))
 
-    elif strategy_str in (FeatureSelectionStrategy.RF_IMPORTANCE.value, "rf_importance"):
+    elif strategy_val in (FeatureSelectionStrategy.RF_IMPORTANCE.value, "rf_importance"):
         return RandomForestImportanceSelector(top_k=top_k, random_state=kwargs.get("random_state", 42))
 
-    elif strategy_str in (FeatureSelectionStrategy.MUTUAL_INFO.value, "mutual_info"):
+    elif strategy_val in (FeatureSelectionStrategy.MUTUAL_INFO.value, "mutual_info"):
         return MutualInformationSelector(top_k=top_k, random_state=kwargs.get("random_state", 42))
 
     else:
