@@ -13,6 +13,17 @@ from src.api.middleware.error_handler import register_error_handlers
 from src.api.middleware.logging_middleware import RequestLoggingMiddleware
 from src.api.middleware.rate_limiter import InMemoryRateLimiterMiddleware
 
+# Route imports
+from src.api.routes.health import router as health_router
+from src.api.routes.datasets import router as datasets_router
+from src.api.routes.eda import router as eda_router
+from src.api.routes.models import router as models_router
+from src.api.routes.compare import router as compare_router
+from src.api.routes.predict_single import router as predict_single_router
+from src.api.routes.predict_batch import router as predict_batch_router
+from src.api.routes.alerts import router as alerts_router
+from src.api.routes.export import router as export_router
+
 logger = get_logger("netsentry.api")
 
 
@@ -65,6 +76,17 @@ def create_app() -> FastAPI:
 
     # 4. Error Handling
     register_error_handlers(app)
+
+    # 5. Route Registration
+    app.include_router(health_router)
+    app.include_router(datasets_router)
+    app.include_router(eda_router)
+    app.include_router(models_router)
+    app.include_router(compare_router)
+    app.include_router(predict_single_router)
+    app.include_router(predict_batch_router)
+    app.include_router(alerts_router)
+    app.include_router(export_router)
 
     return app
 
