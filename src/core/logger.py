@@ -5,7 +5,12 @@ import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+
+def get_utc_now_iso() -> str:
+    """Returns the current UTC timestamp formatted in ISO-8601."""
+    return datetime.now(timezone.utc).isoformat()
 
 
 class JSONFormatter(logging.Formatter):
@@ -13,7 +18,7 @@ class JSONFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         log_entry: Dict[str, Any] = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": get_utc_now_iso(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -27,7 +32,7 @@ class JSONFormatter(logging.Formatter):
 
 
 def get_logger(name: str = "netsentry", log_file: str | None = None) -> logging.Logger:
-    """Configures and retrieves a logger instance."""
+    """Configures and retrieves a singleton logger instance by name."""
     logger = logging.getLogger(name)
 
     if not logger.handlers:
@@ -52,3 +57,37 @@ def get_logger(name: str = "netsentry", log_file: str | None = None) -> logging.
             logger.addHandler(file_handler)
 
     return logger
+
+
+def log_security_audit(
+    logger: logging.Logger,
+    event_type: str,
+    client_ip: str,
+    severity: str,
+    details: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Emits a structured security audit log entry."""
+    payload = {
+        "audit_event": event_type,
+        "client_ip": client_ip,
+        "severity": severity,
+        "timestamp": get_utc_now_iso(),
+        "details": details or {},
+    }
+    logger.warning(f"SECURITY_AUDIT: {json.dumps(payload)}")
+
+
+def log_ml_event(
+    logger: logging.Logger,
+    model_name: str,
+    action: str,
+    metrics: Optional[Dict[str, Any]] = None,
+) -> None:
+    """Emits an ML training or inference lifecycle log entry."""
+    payload = {
+        "model_name": model_name,
+        "action": action,
+        "timestamp": get_utc_now_iso(),
+        "metrics": metrics or {},
+    }
+    logger.info(f"ML_EVENT: {json.dumps(payload)}")
