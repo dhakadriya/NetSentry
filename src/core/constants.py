@@ -56,6 +56,20 @@ ATTACK_CATEGORIES: List[str] = [
     "Worms",
 ]
 
+# MITRE ATT&CK Technique ID mappings for UNSW attack classifications
+MITRE_ATTACK_MAPPING: Dict[str, Dict[str, str]] = {
+    "Normal": {"technique_id": "T0000", "technique_name": "Benign Traffic", "tactic": "None"},
+    "Fuzzers": {"technique_id": "T1499.004", "technique_name": "Application or System Exploitation (Fuzzing)", "tactic": "Impact"},
+    "Analysis": {"technique_id": "T1040", "technique_name": "Network Sniffing / Port Scanning", "tactic": "Credential Access / Discovery"},
+    "Backdoors": {"technique_id": "T1059", "technique_name": "Command and Scripting Interpreter", "tactic": "Execution / Persistence"},
+    "DoS": {"technique_id": "T1498", "technique_name": "Network Denial of Service", "tactic": "Impact"},
+    "Exploits": {"technique_id": "T1203", "technique_name": "Exploitation for Client Execution", "tactic": "Execution"},
+    "Generic": {"technique_id": "T1071", "technique_name": "Standard Cryptographic / Generic Protocol Abuse", "tactic": "Command and Control"},
+    "Reconnaissance": {"technique_id": "T1595", "technique_name": "Active Scanning", "tactic": "Reconnaissance"},
+    "Shellcode": {"technique_id": "T1055", "technique_name": "Process Injection / Shellcode Execution", "tactic": "Defense Evasion / Privilege Escalation"},
+    "Worms": {"technique_id": "T1570", "technique_name": "Lateral Tool Transfer / Self-Replication", "tactic": "Lateral Movement"},
+}
+
 # Attack severity mapping
 ATTACK_SEVERITY_MAP: Dict[str, ThreatSeverity] = {
     "Normal": ThreatSeverity.LOW,
@@ -68,6 +82,19 @@ ATTACK_SEVERITY_MAP: Dict[str, ThreatSeverity] = {
     "Reconnaissance": ThreatSeverity.MEDIUM,
     "Shellcode": ThreatSeverity.CRITICAL,
     "Worms": ThreatSeverity.CRITICAL,
+}
+
+# Default Port Mappings for Well-Known Network Services
+DEFAULT_SERVICE_PORTS: Dict[str, int] = {
+    "http": 80,
+    "ssl": 443,
+    "ftp": 21,
+    "ftp-data": 20,
+    "ssh": 22,
+    "dns": 53,
+    "smtp": 25,
+    "pop3": 110,
+    "snmp": 161,
 }
 
 # UNSW-NB15 Standard Schema
