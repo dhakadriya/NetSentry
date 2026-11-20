@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: netsentry-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - NETSENTRY_ENV=production
+      - NETSENTRY_DATABASE_URL=sqlite:////app/data/netsentry.db
+      - NETSENTRY_MODEL_STORAGE_PATH=/app/models
+      - NETSENTRY_LOG_LEVEL=INFO
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    networks:
+      - netsentry-net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: netsentry-frontend
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - NETSENTRY_DATABASE_URL=sqlite:////app/data/netsentry.db
+      - NETSENTRY_MODEL_STORAGE_PATH=/app/models
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+    depends_on:
+      - backend
+    networks:
+      - netsentry-net
+
+networks:
+  netsentry-net:
+    driver: bridge
