@@ -1,7 +1,7 @@
 """Pydantic schemas for intrusion alerts, threat intelligence, and filtering."""
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from src.core.constants import ThreatSeverity
@@ -46,5 +46,6 @@ class ThreatStatsSummary(BaseModel):
     medium_alerts: int
     low_alerts: int
     attack_type_breakdown: Dict[str, int]
-    top_source_ips: List[Dict[str, int]]
+    top_source_ips: List[Dict[str, Any]]
     reviewed_count: int
+

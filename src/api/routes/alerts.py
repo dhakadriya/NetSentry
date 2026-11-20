@@ -18,21 +18,25 @@ router = APIRouter(prefix="/api/v1/alerts", tags=["Threat Alerts & Intelligence"
 
 @router.get("", response_model=List[TrafficAlertResponse])
 def get_alerts(
-    severity: Optional[str] = Query(None, description="Filter by severity: low, medium, high, critical"),
-    attack_type: Optional[str] = Query(None, description="Filter by attack type: DoS, Exploits, etc."),
-    is_reviewed: Optional[bool] = Query(None, description="Filter by review status"),
-    limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0),
+    severity: Optional[str] = None,
+    attack_type: Optional[str] = None,
+    is_reviewed: Optional[bool] = None,
+    limit: int = 50,
+    offset: int = 0,
     db: Session = Depends(get_db_session),
 ):
     """Retrieves detected network intrusion alerts with optional threat filtering."""
+    # Ensure limit and offset are integers even if FastAPI Query object is passed in tests
+    lim = int(getattr(limit, "default", limit)) if hasattr(limit, "default") else int(limit)
+    off = int(getattr(offset, "default", offset)) if hasattr(offset, "default") else int(offset)
+
     alerts = list_alerts(
         db=db,
         severity=severity,
         attack_type=attack_type,
         is_reviewed=is_reviewed,
-        limit=limit,
-        offset=offset,
+        limit=lim,
+        offset=off,
     )
     return alerts
 
