@@ -1,38 +1,54 @@
-"""Request logging and execution timer middleware."""
+"""High-performance ASGI request logging and latency measurement middleware."""
 
 import time
 import uuid
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.requests import Request
-from starlette.responses import Response
+from typing import Callable
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from src.core.logger import get_logger
 
 logger = get_logger("netsentry.api.access")
 
 
-class RequestLoggingMiddleware(BaseHTTPMiddleware):
-    """Logs incoming HTTP requests, assigns tracing ID, and adds response processing latency header."""
+class RequestLoggingMiddleware:
+    """Pure ASGI middleware logging HTTP requests, attaching tracing ID and latency headers."""
 
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
-        request_id = str(uuid.uuid4())
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
         start_time = time.perf_counter()
+        request_id = str(uuid.uuid4())
+        status_code = [200]
 
-        response = await call_next(request)
+        async def send_wrapper(message):
+            if message["type"] == "http.response.start":
+                status_code[0] = message.get("status", 200)
+                elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
-        process_time_ms = (time.perf_counter() - start_time) * 1000.0
-        response.headers["X-Request-ID"] = request_id
-        response.headers["X-Process-Time-Ms"] = f"{process_time_ms:.2f}"
+                headers = list(message.get("headers", []))
+                headers.append((b"x-request-id", request_id.encode()))
+                headers.append((b"x-process-time-ms", f"{elapsed_ms:.2f}".encode()))
+                message["headers"] = headers
 
-        client_host = request.client.host if request.client else "unknown"
-        logger.info(
-            "%s %s - %d (%s) - %.2fms - ID: %s",
-            request.method,
-            request.url.path,
-            response.status_code,
-            client_host,
-            process_time_ms,
-            request_id[:8],
-        )
+            await send(message)
 
-        return response
+        try:
+            await self.app(scope, receive, send_wrapper)
+        finally:
+            elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+            client = scope.get("client")
+            client_ip = client[0] if client else "unknown"
+            logger.info(
+                "%s %s - %d (%s) - %.2fms - ID: %s",
+                scope.get("method", "GET"),
+                scope.get("path", "/"),
+                status_code[0],
+                client_ip,
+                elapsed_ms,
+                request_id[:8],
+            )
