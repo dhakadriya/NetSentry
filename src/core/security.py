@@ -7,7 +7,47 @@ from src.core.exceptions import SecurityViolationError
 
 
 ALLOWED_EXTENSIONS = {".csv"}
+ALLOWED_MIME_TYPES = {
+    "text/csv",
+    "application/vnd.ms-excel",
+    "text/plain",
+    "application/csv",
+    "text/x-csv",
+}
 MAX_FILENAME_LENGTH = 255
+
+
+def validate_mime_type(content_type: str | None) -> None:
+    """Validates that the uploaded HTTP content type is a recognized CSV format.
+    
+    Raises:
+        SecurityViolationError: If content_type is missing or not in ALLOWED_MIME_TYPES.
+    """
+    if not content_type:
+        raise SecurityViolationError("Content-Type header is required for file uploads.")
+    
+    normalized = content_type.split(";")[0].strip().lower()
+    if normalized not in ALLOWED_MIME_TYPES:
+        raise SecurityViolationError(
+            f"Unsupported MIME type '{normalized}'. Expected valid CSV MIME type."
+        )
+
+
+def is_safe_path(base_dir: Path, target_path: str) -> bool:
+    """Returns True if target_path resolves strictly within base_dir, False otherwise."""
+    try:
+        resolved_base = base_dir.resolve()
+        resolved_target = (resolved_base / target_path).resolve()
+        resolved_target.relative_to(resolved_base)
+        return True
+    except (ValueError, RuntimeError):
+        return False
+
+
+def strip_ansi_sequences(text: str) -> str:
+    """Removes ANSI terminal escape sequences to prevent log injection."""
+    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+    return ansi_escape.sub("", text)
 
 
 def sanitize_filename(filename: str) -> str:
