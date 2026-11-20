@@ -4,7 +4,7 @@ import json
 from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 
-from src.database.models.model_experiment import ModelExperiment
+from src.database.models import DatasetRecord, ModelExperiment, PredictionJob, TrafficAlert
 
 
 def create_experiment(
