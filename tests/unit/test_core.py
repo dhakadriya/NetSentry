@@ -1,16 +1,34 @@
-"""Unit tests for NetSentry core configuration and security functions."""
+"""Unit tests for NetSentry core configuration, constants, logging, and security functions."""
 
 import pytest
+import logging
 from pathlib import Path
 from src.core.config import Settings, get_settings
-from src.core.constants import MLAlgorithm, ThreatSeverity, TrafficClass, ATTACK_CATEGORIES
-from src.core.exceptions import SecurityViolationError
+from src.core.constants import (
+    MLAlgorithm,
+    ThreatSeverity,
+    TrafficClass,
+    ATTACK_CATEGORIES,
+    MITRE_ATTACK_MAPPING,
+    DEFAULT_SERVICE_PORTS,
+)
+from src.core.exceptions import (
+    SecurityViolationError,
+    UnsupportedProtocolError,
+    FeatureDimensionMismatchError,
+    ModelNotTrainedError,
+    RateLimitExceededError,
+)
 from src.core.security import (
     compute_sha256,
     safe_join_path,
     sanitize_filename,
     validate_file_size,
+    validate_mime_type,
+    is_safe_path,
+    strip_ansi_sequences,
 )
+from src.core.logger import get_logger, log_security_audit, log_ml_event, get_utc_now_iso
 
 
 def test_settings_initialization():
@@ -80,3 +98,60 @@ def test_constants_definitions():
     assert TrafficClass.MALICIOUS.value == 1
     assert "DoS" in ATTACK_CATEGORIES
     assert "Exploits" in ATTACK_CATEGORIES
+
+
+def test_mitre_mapping_and_service_ports():
+    """Verify MITRE ATT&CK technique IDs and port definitions."""
+    assert "DoS" in MITRE_ATTACK_MAPPING
+    assert MITRE_ATTACK_MAPPING["DoS"]["technique_id"] == "T1498"
+    assert MITRE_ATTACK_MAPPING["Reconnaissance"]["technique_id"] == "T1595"
+    assert DEFAULT_SERVICE_PORTS["http"] == 80
+    assert DEFAULT_SERVICE_PORTS["ssl"] == 443
+
+
+def test_mime_type_validation_and_is_safe_path(tmp_path):
+    """Verify MIME-type security checking and boolean path safety helper."""
+    validate_mime_type("text/csv")
+    validate_mime_type("text/csv; charset=utf-8")
+    validate_mime_type("application/vnd.ms-excel")
+
+    with pytest.raises(SecurityViolationError):
+        validate_mime_type("application/x-sh")
+
+    with pytest.raises(SecurityViolationError):
+        validate_mime_type("")
+
+    assert is_safe_path(tmp_path, "safe_dir/test.csv") is True
+    assert is_safe_path(tmp_path, "../../etc/shadow") is False
+
+    dirty_text = "\x1b[31mRed Alert\x1b[0m"
+    assert strip_ansi_sequences(dirty_text) == "Red Alert"
+
+
+def test_domain_exceptions_structure():
+    """Verify status codes and serialization on domain exceptions."""
+    err = UnsupportedProtocolError("Protocol rawip is not supported", details={"proto": "rawip"})
+    assert err.status_code == 422
+    payload = err.to_dict()
+    assert payload["error_type"] == "UnsupportedProtocolError"
+    assert payload["details"]["proto"] == "rawip"
+
+    dim_err = FeatureDimensionMismatchError("Feature count mismatch", details={"expected": 42, "got": 10})
+    assert dim_err.status_code == 422
+
+    untrained_err = ModelNotTrainedError("Model has not been fitted")
+    assert untrained_err.status_code == 400
+
+    rate_err = RateLimitExceededError("Too many requests")
+    assert rate_err.status_code == 429
+
+
+def test_structured_logger_and_events():
+    """Verify audit and ML lifecycle log events."""
+    logger = get_logger("test_netsentry_core")
+    assert isinstance(logger, logging.Logger)
+    assert get_utc_now_iso().endswith("+00:00") or "T" in get_utc_now_iso()
+
+    # Verify helper does not throw exception
+    log_security_audit(logger, "LOGIN_ATTEMPT", "192.168.1.100", "low")
+    log_ml_event(logger, "RandomForest", "TRAINING_COMPLETE", {"f1_score": 0.98})
