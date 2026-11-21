@@ -2,6 +2,7 @@
 
 import json
 from typing import List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from src.database.models.dataset import DatasetRecord
@@ -50,15 +51,32 @@ def get_dataset_by_checksum(db: Session, checksum: str) -> Optional[DatasetRecor
     return db.query(DatasetRecord).filter(DatasetRecord.checksum_sha256 == checksum).first()
 
 
-def list_datasets(db: Session, limit: int = 50, offset: int = 0) -> List[DatasetRecord]:
-    """Returns cataloged datasets ordered by creation time descending."""
+def exists_by_checksum(db: Session, checksum: str) -> bool:
+    """Checks whether a dataset with the given SHA-256 checksum exists."""
     return (
-        db.query(DatasetRecord)
-        .order_by(DatasetRecord.id.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+        db.query(func.count(DatasetRecord.id))
+        .filter(DatasetRecord.checksum_sha256 == checksum)
+        .scalar()
+        or 0
+    ) > 0
+
+
+def count_datasets(db: Session, dataset_type: Optional[str] = None) -> int:
+    """Returns the total number of cataloged datasets matching optional type filter."""
+    query = db.query(func.count(DatasetRecord.id))
+    if dataset_type:
+        query = query.filter(DatasetRecord.dataset_type == dataset_type)
+    return query.scalar() or 0
+
+
+def list_datasets(
+    db: Session, limit: int = 50, offset: int = 0, dataset_type: Optional[str] = None
+) -> List[DatasetRecord]:
+    """Returns cataloged datasets ordered by creation time descending with optional type filtering."""
+    query = db.query(DatasetRecord)
+    if dataset_type:
+        query = query.filter(DatasetRecord.dataset_type == dataset_type)
+    return query.order_by(DatasetRecord.id.desc()).offset(offset).limit(limit).all()
 
 
 def delete_dataset(db: Session, dataset_id: int) -> bool:
