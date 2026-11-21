@@ -11,6 +11,8 @@ from src.database.crud.dataset_repo import (
     get_dataset_by_id,
     list_datasets,
     delete_dataset,
+    count_datasets,
+    exists_by_checksum,
 )
 from src.database.crud.experiment_repo import (
     create_experiment,
@@ -18,10 +20,15 @@ from src.database.crud.experiment_repo import (
     get_best_model,
     set_best_model,
     get_leaderboard,
+    count_experiments,
+    archive_experiment,
 )
 from src.database.crud.prediction_repo import (
     create_prediction_job,
     get_prediction_job_by_id,
+    list_prediction_jobs,
+    count_prediction_jobs,
+    update_prediction_job_status,
 )
 from src.database.crud.alert_repo import (
     create_alert,
@@ -29,6 +36,9 @@ from src.database.crud.alert_repo import (
     list_alerts,
     update_alert_review,
     get_threat_stats,
+    create_alerts_bulk,
+    count_alerts,
+    delete_alert,
 )
 
 
@@ -78,6 +88,38 @@ def test_dataset_crud(db_session):
     assert get_dataset_by_id(db_session, ds.id) is None
 
 
+def test_dataset_pagination_and_checksum_exists(db_session):
+    """Verify count_datasets and exists_by_checksum functions."""
+    create_dataset(
+        db=db_session,
+        filename="flow_a.csv",
+        stored_path="data/uploads/flow_a.csv",
+        dataset_type="unsw_nb15",
+        total_rows=100,
+        feature_count=42,
+        normal_count=80,
+        attack_count=20,
+        checksum_sha256="hash_flow_a",
+    )
+    create_dataset(
+        db=db_session,
+        filename="flow_b.csv",
+        stored_path="data/uploads/flow_b.csv",
+        dataset_type="cic_ids2017",
+        total_rows=200,
+        feature_count=42,
+        normal_count=150,
+        attack_count=50,
+        checksum_sha256="hash_flow_b",
+    )
+
+    assert count_datasets(db_session) == 2
+    assert count_datasets(db_session, dataset_type="unsw_nb15") == 1
+    assert count_datasets(db_session, dataset_type="cic_ids2017") == 1
+    assert exists_by_checksum(db_session, "hash_flow_a") is True
+    assert exists_by_checksum(db_session, "nonexistent_hash") is False
+
+
 def test_experiment_crud_and_leaderboard(db_session):
     """Verify model experiment recording and leaderboard ranking."""
     exp1 = create_experiment(
@@ -91,13 +133,13 @@ def test_experiment_crud_and_leaderboard(db_session):
         precision=0.89,
         recall=0.88,
         f1_score=0.885,
-        false_positive_rate=0.04,
+        false_positive_rate=0.035,
         false_negative_rate=0.12,
-        roc_auc=0.92,
-        confusion_matrix=[[90, 10], [12, 88]],
-        training_time_seconds=0.1,
+        roc_auc=0.94,
+        confusion_matrix=[[300, 10], [20, 170]],
+        training_time_seconds=0.15,
         prediction_time_ms=0.5,
-        is_best_model=False,
+        artifact_path="models/test_dt.joblib",
     )
 
     exp2 = create_experiment(
@@ -105,38 +147,69 @@ def test_experiment_crud_and_leaderboard(db_session):
         model_name="RandomForest-Test",
         algorithm="random_forest",
         dataset_id=None,
-        feature_strategy="rf_importance",
+        feature_strategy="variance_threshold",
         hyperparameters={"n_estimators": 50},
         accuracy=0.96,
         precision=0.95,
         recall=0.94,
         f1_score=0.945,
-        false_positive_rate=0.02,
+        false_positive_rate=0.015,
         false_negative_rate=0.06,
         roc_auc=0.98,
-        confusion_matrix=[[98, 2], [6, 94]],
-        training_time_seconds=0.5,
-        prediction_time_ms=1.1,
+        confusion_matrix=[[305, 5], [10, 180]],
+        training_time_seconds=0.85,
+        prediction_time_ms=1.2,
+        artifact_path="models/test_rf.joblib",
         is_best_model=True,
     )
 
     best = get_best_model(db_session)
+    assert best is not None
     assert best.id == exp2.id
     assert best.f1_score == 0.945
 
-    # Switch best model
-    updated_best = set_best_model(db_session, exp1.id)
-    assert updated_best.id == exp1.id
-    assert updated_best.is_best_model is True
+    # Switch best model manually
+    updated = set_best_model(db_session, exp1.id)
+    assert updated.is_best_model is True
+    assert get_best_model(db_session).id == exp1.id
 
+    # Verify Leaderboard ordering
     leaderboard = get_leaderboard(db_session)
     assert len(leaderboard) == 2
-    # Highest F1 first
-    assert leaderboard[0].id == exp2.id
+    assert leaderboard[0].f1_score >= leaderboard[1].f1_score
+
+
+def test_experiment_filtering_and_archive(db_session):
+    """Verify count_experiments and archive_experiment functions."""
+    exp = create_experiment(
+        db=db_session,
+        model_name="KNN-Test",
+        algorithm="knn",
+        dataset_id=None,
+        feature_strategy="none",
+        hyperparameters={"n_neighbors": 5},
+        accuracy=0.90,
+        precision=0.88,
+        recall=0.87,
+        f1_score=0.875,
+        false_positive_rate=0.04,
+        false_negative_rate=0.13,
+        roc_auc=0.92,
+        confusion_matrix=[[290, 20], [25, 165]],
+        training_time_seconds=0.05,
+        prediction_time_ms=2.5,
+    )
+    assert count_experiments(db_session, algorithm="knn") == 1
+    assert count_experiments(db_session, is_active=True) == 1
+
+    archived = archive_experiment(db_session, exp.id)
+    assert archived is True
+    assert count_experiments(db_session, is_active=True) == 0
+    assert count_experiments(db_session, is_active=False) == 1
 
 
 def test_prediction_job_crud(db_session):
-    """Verify batch prediction job persistence."""
+    """Verify batch prediction job tracking."""
     job = create_prediction_job(
         db=db_session,
         job_type="batch_csv",
@@ -155,6 +228,12 @@ def test_prediction_job_crud(db_session):
     retrieved = get_prediction_job_by_id(db_session, job.id)
     assert retrieved is not None
     assert retrieved.detection_rate == 0.35
+
+    assert count_prediction_jobs(db_session, status="completed") == 1
+
+    updated = update_prediction_job_status(db_session, job.id, "failed", "CSV parsing error")
+    assert updated.status == "failed"
+    assert updated.error_message == "CSV parsing error"
 
 
 def test_alert_crud_and_threat_stats(db_session):
@@ -195,3 +274,22 @@ def test_alert_crud_and_threat_stats(db_session):
     assert stats["reviewed_count"] == 1
     assert stats["attack_type_breakdown"]["DoS"] == 1
     assert stats["top_source_ips"][0]["ip"] == "192.168.1.150"
+
+
+def test_alerts_bulk_insert_and_count(db_session):
+    """Verify create_alerts_bulk, count_alerts, and delete_alert."""
+    batch = [
+        {"attack_type": "Fuzzers", "confidence": 0.82, "severity": "medium", "source_ip": "10.0.0.5"},
+        {"attack_type": "Exploits", "confidence": 0.95, "severity": "critical", "source_ip": "10.0.0.6"},
+        {"attack_type": "Generic", "confidence": 0.78, "severity": "low", "source_ip": "10.0.0.7"},
+    ]
+    created = create_alerts_bulk(db_session, batch)
+    assert len(created) == 3
+
+    assert count_alerts(db_session) == 3
+    assert count_alerts(db_session, severity="critical") == 1
+    assert count_alerts(db_session, is_reviewed=False) == 3
+
+    del_res = delete_alert(db_session, created[0].id)
+    assert del_res is True
+    assert count_alerts(db_session) == 2
