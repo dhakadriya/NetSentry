@@ -2,6 +2,7 @@
 
 import json
 from typing import Any, Dict, List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from src.database.models import DatasetRecord, ModelExperiment, PredictionJob, TrafficAlert
@@ -91,14 +92,44 @@ def set_best_model(db: Session, experiment_id: int) -> Optional[ModelExperiment]
     return target
 
 
+def archive_experiment(db: Session, experiment_id: int) -> bool:
+    """Soft-deletes or deactivates an experiment from the active leaderboard."""
+    target = get_experiment_by_id(db, experiment_id)
+    if target:
+        target.is_active = False
+        target.is_best_model = False
+        db.commit()
+        db.refresh(target)
+        return True
+    return False
+
+
+def count_experiments(
+    db: Session, algorithm: Optional[str] = None, is_active: Optional[bool] = None
+) -> int:
+    """Returns total count of experiments matching optional criteria."""
+    query = db.query(func.count(ModelExperiment.id))
+    if algorithm:
+        query = query.filter(ModelExperiment.algorithm == algorithm)
+    if is_active is not None:
+        query = query.filter(ModelExperiment.is_active == is_active)
+    return query.scalar() or 0
+
+
 def list_experiments(
-    db: Session, limit: int = 50, algorithm: Optional[str] = None
+    db: Session,
+    limit: int = 50,
+    offset: int = 0,
+    algorithm: Optional[str] = None,
+    is_active: Optional[bool] = None,
 ) -> List[ModelExperiment]:
-    """Lists model experiments, optionally filtered by algorithm."""
+    """Lists model experiments with pagination and optional filtering."""
     query = db.query(ModelExperiment)
     if algorithm:
         query = query.filter(ModelExperiment.algorithm == algorithm)
-    return query.order_by(ModelExperiment.id.desc()).limit(limit).all()
+    if is_active is not None:
+        query = query.filter(ModelExperiment.is_active == is_active)
+    return query.order_by(ModelExperiment.id.desc()).offset(offset).limit(limit).all()
 
 
 def get_leaderboard(db: Session, limit: int = 20) -> List[ModelExperiment]:
