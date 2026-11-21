@@ -45,9 +45,60 @@ def create_alert(
     return alert
 
 
+def create_alerts_bulk(
+    db: Session, alerts_data: List[Dict[str, Any]]
+) -> List[TrafficAlert]:
+    """Efficiently inserts a batch of threat alerts into the database."""
+    alerts = []
+    for item in alerts_data:
+        packet_json = (
+            json.dumps(item.get("packet_details"))
+            if item.get("packet_details")
+            else None
+        )
+        alert = TrafficAlert(
+            prediction_job_id=item.get("prediction_job_id"),
+            attack_type=item.get("attack_type", "Generic"),
+            confidence=item.get("confidence", 0.85),
+            severity=item.get("severity", "medium"),
+            source_ip=item.get("source_ip", "192.168.1.100"),
+            destination_ip=item.get("destination_ip", "10.0.0.1"),
+            protocol=item.get("protocol", "tcp"),
+            service=item.get("service", "-"),
+            flow_duration=item.get("flow_duration", 0.0),
+            source_bytes=item.get("source_bytes", 0),
+            destination_bytes=item.get("destination_bytes", 0),
+            packet_details_json=packet_json,
+            is_reviewed=item.get("is_reviewed", False),
+            analyst_notes=item.get("analyst_notes"),
+        )
+        alerts.append(alert)
+
+    db.bulk_save_objects(alerts, return_defaults=True)
+    db.commit()
+    return alerts
+
+
 def get_alert_by_id(db: Session, alert_id: int) -> Optional[TrafficAlert]:
     """Retrieves an alert by its ID."""
     return db.query(TrafficAlert).filter(TrafficAlert.id == alert_id).first()
+
+
+def count_alerts(
+    db: Session,
+    severity: Optional[str] = None,
+    attack_type: Optional[str] = None,
+    is_reviewed: Optional[bool] = None,
+) -> int:
+    """Returns the total number of alerts matching optional filter criteria."""
+    query = db.query(func.count(TrafficAlert.id))
+    if severity:
+        query = query.filter(TrafficAlert.severity == severity)
+    if attack_type:
+        query = query.filter(TrafficAlert.attack_type == attack_type)
+    if is_reviewed is not None:
+        query = query.filter(TrafficAlert.is_reviewed == is_reviewed)
+    return query.scalar() or 0
 
 
 def list_alerts(
@@ -81,6 +132,16 @@ def update_alert_review(
         db.commit()
         db.refresh(alert)
     return alert
+
+
+def delete_alert(db: Session, alert_id: int) -> bool:
+    """Removes an alert record from the database."""
+    alert = get_alert_by_id(db, alert_id)
+    if alert:
+        db.delete(alert)
+        db.commit()
+        return True
+    return False
 
 
 def get_threat_stats(db: Session) -> Dict[str, Any]:
