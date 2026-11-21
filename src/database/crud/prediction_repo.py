@@ -1,6 +1,7 @@
 """CRUD operations for batch and flow prediction jobs."""
 
 from typing import List, Optional
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from src.database.models.prediction_job import PredictionJob
@@ -45,13 +46,37 @@ def get_prediction_job_by_id(db: Session, job_id: int) -> Optional[PredictionJob
     return db.query(PredictionJob).filter(PredictionJob.id == job_id).first()
 
 
+def update_prediction_job_status(
+    db: Session, job_id: int, status: str, error_message: Optional[str] = None
+) -> Optional[PredictionJob]:
+    """Updates the execution status and error state of a prediction job."""
+    job = get_prediction_job_by_id(db, job_id)
+    if job:
+        job.status = status
+        if error_message:
+            job.error_message = error_message
+        db.commit()
+        db.refresh(job)
+    return job
+
+
+def count_prediction_jobs(db: Session, status: Optional[str] = None) -> int:
+    """Returns the total number of prediction jobs, optionally filtered by status."""
+    query = db.query(func.count(PredictionJob.id))
+    if status:
+        query = query.filter(PredictionJob.status == status)
+    return query.scalar() or 0
+
+
 def list_prediction_jobs(
-    db: Session, limit: int = 50, offset: int = 0
+    db: Session, limit: int = 50, offset: int = 0, status: Optional[str] = None
 ) -> List[PredictionJob]:
-    """Lists recent prediction jobs in descending order."""
+    """Lists recent prediction jobs in descending order with optional status filter."""
+    query = db.query(PredictionJob)
+    if status:
+        query = query.filter(PredictionJob.status == status)
     return (
-        db.query(PredictionJob)
-        .order_by(PredictionJob.id.desc())
+        query.order_by(PredictionJob.id.desc())
         .offset(offset)
         .limit(limit)
         .all()
