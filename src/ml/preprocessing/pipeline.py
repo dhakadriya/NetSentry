@@ -29,6 +29,11 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
         self.scaler = NetworkFeatureScaler(method=scaling_method)
         self.feature_names_: List[str] = []
 
+    @property
+    def n_features_(self) -> int:
+        """Returns the total number of engineered features."""
+        return len(self.feature_names_)
+
     def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "NetSentryPreprocessor":
         """Fits cleaner, categorical encoder, and scaler sequentially on training flow records."""
         # 1. Clean
@@ -52,6 +57,11 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
         df_encoded = self.encoder.transform(df_clean)
         df_scaled = self.scaler.transform(df_encoded)
         return df_scaled
+
+    def transform_features(self, X: pd.DataFrame) -> pd.DataFrame:
+        """Transforms input DataFrame and aligns columns strictly to self.feature_names_."""
+        X_out, _, _ = self.split_X_y(X)
+        return X_out
 
     def split_X_y(
         self, df: pd.DataFrame
@@ -85,3 +95,7 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
             X = df_trans.drop(columns=[c for c in exclude if c in df_trans.columns])
 
         return X, y, attack_cats
+
+    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+        """Returns the list of output engineered feature names."""
+        return self.feature_names_
