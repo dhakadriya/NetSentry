@@ -58,13 +58,11 @@ class DatasetEDAResponse(BaseModel):
     filename: str
     total_rows: int = Field(..., ge=0)
     feature_count: int = Field(..., ge=0)
-    normal_count: int = Field(..., ge=0)
-    attack_count: int = Field(..., ge=0)
-    normal_ratio: float = Field(..., ge=0.0, le=1.0)
-    attack_ratio: float = Field(..., ge=0.0, le=1.0)
+    class_distribution: Dict[str, int] = Field(default_factory=dict)
+    attack_category_distribution: Dict[str, int] = Field(default_factory=dict)
+    protocol_distribution: Dict[str, int] = Field(default_factory=dict)
+    service_distribution: Dict[str, int] = Field(default_factory=dict)
     numerical_summary: Dict[str, Dict[str, float]] = Field(default_factory=dict)
-    categorical_distribution: Dict[str, Dict[str, int]] = Field(default_factory=dict)
-    attack_distribution: Dict[str, int] = Field(default_factory=dict)
 
 
 class DatasetPaginationResponse(BaseModel):

@@ -34,7 +34,7 @@ class ModelEvaluationMetrics(BaseModel):
     confusion_matrix: List[List[int]] = Field(default_factory=list)
     training_time_seconds: float = Field(..., ge=0.0)
     prediction_time_ms: float = Field(..., ge=0.0)
-    selected_features_count: int = Field(..., ge=1)
+    selected_features_count: int = Field(default=0, ge=0)
 
 
 class ModelExperimentSummary(BaseModel):
@@ -82,6 +82,9 @@ class ModelComparisonResult(BaseModel):
     fastest_inference_model: str
     fastest_inference_ms: float = Field(..., ge=0.0)
     comparison_timestamp: datetime
+
+
+CompareModelsResponse = ModelComparisonResult
 
 
 class LeaderboardResponse(BaseModel):
