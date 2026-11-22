@@ -1,6 +1,6 @@
 """Random Forest ensemble classifier implementation with class weight balancing."""
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from sklearn.ensemble import RandomForestClassifier
 
 from src.core.constants import MLAlgorithm
@@ -17,10 +17,12 @@ class RandomForestModel(BaseNetSentryModel):
         max_depth: Optional[int] = 16,
         min_samples_split: int = 4,
         min_samples_leaf: int = 1,
+        max_features: str = "sqrt",
         class_weight: str = "balanced",
+        oob_score: bool = False,
         random_state: int = 42,
         n_jobs: int = -1,
-        **kwargs,
+        **kwargs: Any,
     ):
         super().__init__(
             model_name=model_name,
@@ -29,7 +31,9 @@ class RandomForestModel(BaseNetSentryModel):
             max_depth=max_depth,
             min_samples_split=min_samples_split,
             min_samples_leaf=min_samples_leaf,
+            max_features=max_features,
             class_weight=class_weight,
+            oob_score=oob_score,
             random_state=random_state,
             n_jobs=n_jobs,
             **kwargs,
@@ -38,9 +42,18 @@ class RandomForestModel(BaseNetSentryModel):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
+        self.max_features = max_features
         self.class_weight = class_weight
+        self.oob_score = oob_score
         self.random_state = random_state
         self.n_jobs = n_jobs
+
+    @property
+    def oob_score_(self) -> Optional[float]:
+        """Returns the out-of-bag accuracy score if oob_score was enabled."""
+        if self.model_ is not None and hasattr(self.model_, "oob_score_"):
+            return float(self.model_.oob_score_)
+        return None
 
     def _create_estimator(self) -> RandomForestClassifier:
         return RandomForestClassifier(
@@ -48,7 +61,9 @@ class RandomForestModel(BaseNetSentryModel):
             max_depth=self.max_depth,
             min_samples_split=self.min_samples_split,
             min_samples_leaf=self.min_samples_leaf,
+            max_features=self.max_features,
             class_weight=self.class_weight,
+            oob_score=self.oob_score,
             random_state=self.random_state,
             n_jobs=self.n_jobs,
         )
