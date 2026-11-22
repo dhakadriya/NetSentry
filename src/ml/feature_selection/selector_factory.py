@@ -1,35 +1,36 @@
 """Unified factory interface for selecting and instantiating feature selection strategies."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from src.core.constants import FeatureSelectionStrategy
 from src.core.exceptions import FeatureSelectionError
-from src.ml.feature_selection.variance_threshold import VarianceThresholdSelector
 from src.ml.feature_selection.correlation_filter import CorrelationFilterSelector
 from src.ml.feature_selection.importance_selector import RandomForestImportanceSelector
 from src.ml.feature_selection.mutual_info import MutualInformationSelector
+from src.ml.feature_selection.variance_threshold import VarianceThresholdSelector
 
 
 class PassThroughSelector(BaseEstimator, TransformerMixin):
     """Retains all features without modification."""
 
     def __init__(self):
-        self.selected_features_: List[str] = []
+        self.selected_features_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "PassThroughSelector":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "PassThroughSelector":
         self.selected_features_ = list(X.columns)
         return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         return X.copy()
 
-    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+    def get_feature_names_out(self, input_features: list[str] | None = None) -> list[str]:
         return self.selected_features_
 
 
-def list_available_strategies() -> Dict[str, str]:
+def list_available_strategies() -> dict[str, str]:
     """Returns supported feature selection strategies with descriptions."""
     return {
         FeatureSelectionStrategy.NONE.value: "Preserves all features without reduction.",

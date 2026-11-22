@@ -1,6 +1,5 @@
 """Network intrusion detection evaluation metrics calculation."""
 
-from typing import List, Optional
 import numpy as np
 from sklearn.metrics import (
     accuracy_score,
@@ -37,7 +36,7 @@ def calculate_mcc(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def calculate_evaluation_metrics(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    y_prob: Optional[np.ndarray] = None,
+    y_prob: np.ndarray | None = None,
     training_time_seconds: float = 0.0,
     prediction_time_ms: float = 0.0,
     selected_features_count: int = 0,

@@ -1,7 +1,8 @@
 """Declarative Base class and common model mixins."""
 
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any
+
 from sqlalchemy import Column, DateTime
 from sqlalchemy.orm import declarative_base
 
@@ -23,7 +24,7 @@ class TimestampMixin:
         nullable=False,
     )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes model attributes to dictionary representation."""
         result = {}
         for col in self.__table__.columns:

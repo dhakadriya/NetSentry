@@ -1,15 +1,15 @@
 """Action button primitives with styled variants."""
 
+
 import streamlit as st
-from typing import Optional
 
 
 def render_action_button(
     label: str,
     key: str,
     button_type: str = "primary",
-    icon: Optional[str] = None,
-    help_text: Optional[str] = None,
+    icon: str | None = None,
+    help_text: str | None = None,
     use_container_width: bool = True,
 ) -> bool:
     """Renders a styled action button supporting primary, secondary, and danger styles."""

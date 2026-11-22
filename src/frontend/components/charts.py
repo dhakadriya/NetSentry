@@ -1,13 +1,13 @@
 """Plotly visualization charts for ROC curves, confusion matrices, and model comparisons."""
 
-from typing import Any, Dict, List
+from typing import Any
+
 import numpy as np
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
 
-def render_confusion_matrix_chart(cm: List[List[int]], labels: List[str] = ["Normal", "Malicious"]) -> None:
+def render_confusion_matrix_chart(cm: list[list[int]], labels: list[str] = ["Normal", "Malicious"]) -> None:
     """Renders an interactive heatmap for the binary confusion matrix."""
     arr = np.array(cm)
     # Calculate percentages
@@ -52,7 +52,7 @@ def render_confusion_matrix_chart(cm: List[List[int]], labels: List[str] = ["Nor
     st.plotly_chart(fig, use_container_width=True)
 
 
-def render_algorithm_comparison_chart(comparison_data: Dict[str, List[Any]]) -> None:
+def render_algorithm_comparison_chart(comparison_data: dict[str, list[Any]]) -> None:
     """Renders side-by-side metric comparison bar chart across the 4 ML models."""
     algorithms = comparison_data.get("algorithms", [])
     f1_scores = [round(x * 100, 2) for x in comparison_data.get("f1_score", [])]
@@ -96,7 +96,7 @@ def render_algorithm_comparison_chart(comparison_data: Dict[str, List[Any]]) -> 
     st.plotly_chart(fig, use_container_width=True)
 
 
-def render_threat_distribution_pie(attack_counts: Dict[str, int]) -> None:
+def render_threat_distribution_pie(attack_counts: dict[str, int]) -> None:
     """Renders a doughnut chart displaying the breakdown of detected attack categories."""
     labels = list(attack_counts.keys())
     values = list(attack_counts.values())

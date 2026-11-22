@@ -1,14 +1,14 @@
 """Reusable card primitives for metrics, alerts, and analytics."""
 
+
 import streamlit as st
-from typing import Optional
 
 
 def render_metric_card(
     title: str,
     value: str,
-    subtitle: Optional[str] = None,
-    delta: Optional[str] = None,
+    subtitle: str | None = None,
+    delta: str | None = None,
     color: str = "#38bdf8",
 ) -> None:
     """Renders an analytical metric card with glassmorphism aesthetics."""

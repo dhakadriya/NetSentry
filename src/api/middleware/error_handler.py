@@ -6,13 +6,11 @@ from fastapi.responses import JSONResponse
 
 from src.core.exceptions import (
     DatasetValidationError,
-    FeatureSelectionError,
     ModelNotFoundError,
     ModelTrainingError,
     NetSentryException,
     PredictionError,
     SecurityViolationError,
-    StorageError,
 )
 from src.core.logger import get_logger
 

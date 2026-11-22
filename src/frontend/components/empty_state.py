@@ -1,14 +1,14 @@
 """Empty state visual representations for zero-data views."""
 
+
 import streamlit as st
-from typing import Optional
 
 
 def render_empty_state(
     title: str = "No Data Found",
     description: str = "Upload a dataset or train a model to populate analytics.",
     icon: str = "📡",
-    action_button_label: Optional[str] = None,
+    action_button_label: str | None = None,
 ) -> bool:
     """Renders a zero-data illustration card with optional call-to-action button."""
     st.markdown(

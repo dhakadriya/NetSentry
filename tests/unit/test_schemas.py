@@ -1,30 +1,25 @@
 """Unit tests for Pydantic request, response, and pagination schemas."""
 
-import pytest
 from datetime import datetime, timezone
+
+import pytest
 from pydantic import ValidationError
 
-from src.core.constants import MLAlgorithm, FeatureSelectionStrategy, ThreatSeverity
+from src.core.constants import MLAlgorithm
+from src.schemas.alert import (
+    AlertPaginationResponse,
+    AlertReviewRequest,
+)
 from src.schemas.dataset import (
-    DatasetSummary,
-    DatasetUploadResponse,
     DatasetPaginationResponse,
+    DatasetSummary,
 )
 from src.schemas.model import (
-    TrainModelRequest,
-    ModelEvaluationMetrics,
     LeaderboardResponse,
+    TrainModelRequest,
 )
 from src.schemas.prediction import (
     SinglePacketPredictionRequest,
-    SinglePredictionResponse,
-    BatchPredictionResponse,
-)
-from src.schemas.alert import (
-    TrafficAlertResponse,
-    AlertReviewRequest,
-    ThreatStatsSummary,
-    AlertPaginationResponse,
 )
 
 

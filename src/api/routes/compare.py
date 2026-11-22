@@ -1,9 +1,10 @@
 """Model comparison, 4-algorithm benchmarking, and leaderboard endpoints."""
 
 from pathlib import Path
-from typing import Any, Dict, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Any
+
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_db_session, get_trainer
@@ -43,7 +44,7 @@ def compare_models(
 
     df = pd.read_csv(file_path, nrows=10000)
 
-    evaluated_records: List[Dict[str, Any]] = []
+    evaluated_records: list[dict[str, Any]] = []
     created_experiments = []
 
     # Benchmark each algorithm

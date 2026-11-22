@@ -1,19 +1,18 @@
 """Application configuration management for NetSentry."""
 
+import os
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Union
-import os
 
 try:
-    from pydantic_settings import BaseSettings
     from pydantic import Field
+    from pydantic_settings import BaseSettings
 except ImportError:
     try:
         from pydantic import BaseSettings, Field  # type: ignore
     except ImportError:
         # Fallback dataclass if pydantic is not installed in current environment
-        from dataclasses import dataclass, field
+        from dataclasses import dataclass
 
         @dataclass
         class BaseSettings:  # type: ignore
@@ -35,7 +34,7 @@ class Settings(BaseSettings):
     api_host: str = os.getenv("API_HOST", "0.0.0.0")
     api_port: int = int(os.getenv("API_PORT", "8000"))
     streamlit_port: int = int(os.getenv("STREAMLIT_PORT", "8501"))
-    allowed_origins: Union[List[str], str] = os.getenv(
+    allowed_origins: list[str] | str = os.getenv(
         "ALLOWED_ORIGINS", "http://localhost:8501,http://127.0.0.1:8501"
     ).split(",")
 
@@ -71,7 +70,7 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Retrieve cached application settings instance."""
     settings = Settings()

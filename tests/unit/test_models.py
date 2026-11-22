@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.core.constants import MLAlgorithm
 from src.ml.models.decision_tree import DecisionTreeModel
 from src.ml.models.knn import KNNModel
 from src.ml.models.logistic_regression import LogisticRegressionModel

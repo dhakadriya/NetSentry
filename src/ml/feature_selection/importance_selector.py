@@ -1,7 +1,5 @@
 """Random Forest Gini feature importance ranking and selection."""
 
-from typing import Dict, List, Optional
-import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.ensemble import RandomForestClassifier
@@ -13,8 +11,8 @@ class RandomForestImportanceSelector(BaseEstimator, TransformerMixin):
     def __init__(self, top_k: int = 20, random_state: int = 42):
         self.top_k = top_k
         self.random_state = random_state
-        self.selected_features_: List[str] = []
-        self.feature_importances_: Dict[str, float] = {}
+        self.selected_features_: list[str] = []
+        self.feature_importances_: dict[str, float] = {}
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> "RandomForestImportanceSelector":
         """Fits an ensemble classifier to compute feature importance rankings."""
@@ -46,5 +44,5 @@ class RandomForestImportanceSelector(BaseEstimator, TransformerMixin):
         available_cols = [c for c in self.selected_features_ if c in X.columns]
         return X[available_cols].copy()
 
-    def get_feature_names_out(self, input_features=None) -> List[str]:
+    def get_feature_names_out(self, input_features=None) -> list[str]:
         return self.selected_features_

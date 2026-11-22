@@ -1,9 +1,8 @@
 """Threat alerts center view with alert filtering, packet inspection, and analyst triage."""
 
 import streamlit as st
-import pandas as pd
 
-from src.database.crud.alert_repo import list_alerts, update_alert_review, get_threat_stats
+from src.database.crud.alert_repo import get_threat_stats, list_alerts, update_alert_review
 from src.frontend.components.modal import render_alert_inspection_dialog
 
 

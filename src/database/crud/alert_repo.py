@@ -1,7 +1,8 @@
 """CRUD operations for intrusion alerts and threat statistics."""
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -20,8 +21,8 @@ def create_alert(
     flow_duration: float = 0.0,
     source_bytes: int = 0,
     destination_bytes: int = 0,
-    prediction_job_id: Optional[int] = None,
-    packet_details: Optional[Dict[str, Any]] = None,
+    prediction_job_id: int | None = None,
+    packet_details: dict[str, Any] | None = None,
 ) -> TrafficAlert:
     """Creates a new intrusion alert."""
     alert = TrafficAlert(
@@ -46,8 +47,8 @@ def create_alert(
 
 
 def create_alerts_bulk(
-    db: Session, alerts_data: List[Dict[str, Any]]
-) -> List[TrafficAlert]:
+    db: Session, alerts_data: list[dict[str, Any]]
+) -> list[TrafficAlert]:
     """Efficiently inserts a batch of threat alerts into the database."""
     alerts = []
     for item in alerts_data:
@@ -79,16 +80,16 @@ def create_alerts_bulk(
     return alerts
 
 
-def get_alert_by_id(db: Session, alert_id: int) -> Optional[TrafficAlert]:
+def get_alert_by_id(db: Session, alert_id: int) -> TrafficAlert | None:
     """Retrieves an alert by its ID."""
     return db.query(TrafficAlert).filter(TrafficAlert.id == alert_id).first()
 
 
 def count_alerts(
     db: Session,
-    severity: Optional[str] = None,
-    attack_type: Optional[str] = None,
-    is_reviewed: Optional[bool] = None,
+    severity: str | None = None,
+    attack_type: str | None = None,
+    is_reviewed: bool | None = None,
 ) -> int:
     """Returns the total number of alerts matching optional filter criteria."""
     query = db.query(func.count(TrafficAlert.id))
@@ -103,12 +104,12 @@ def count_alerts(
 
 def list_alerts(
     db: Session,
-    severity: Optional[str] = None,
-    attack_type: Optional[str] = None,
-    is_reviewed: Optional[bool] = None,
+    severity: str | None = None,
+    attack_type: str | None = None,
+    is_reviewed: bool | None = None,
     limit: int = 50,
     offset: int = 0,
-) -> List[TrafficAlert]:
+) -> list[TrafficAlert]:
     """Retrieves alerts matching optional filtering criteria."""
     query = db.query(TrafficAlert)
     if severity:
@@ -121,8 +122,8 @@ def list_alerts(
 
 
 def update_alert_review(
-    db: Session, alert_id: int, is_reviewed: bool = True, notes: Optional[str] = None
-) -> Optional[TrafficAlert]:
+    db: Session, alert_id: int, is_reviewed: bool = True, notes: str | None = None
+) -> TrafficAlert | None:
     """Updates the review status and analyst annotations for an alert."""
     alert = get_alert_by_id(db, alert_id)
     if alert:
@@ -144,7 +145,7 @@ def delete_alert(db: Session, alert_id: int) -> bool:
     return False
 
 
-def get_threat_stats(db: Session) -> Dict[str, Any]:
+def get_threat_stats(db: Session) -> dict[str, Any]:
     """Computes aggregated threat statistics for the dashboard."""
     total = db.query(func.count(TrafficAlert.id)).scalar() or 0
     critical = (

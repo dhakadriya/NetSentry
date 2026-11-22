@@ -1,6 +1,7 @@
 """Logistic Regression classifier implementation with regularization and coefficient analysis."""
 
-from typing import Any, Dict, Optional
+from typing import Any
+
 from sklearn.linear_model import LogisticRegression
 
 from src.core.constants import MLAlgorithm
@@ -14,7 +15,7 @@ class LogisticRegressionModel(BaseNetSentryModel):
         self,
         model_name: str = "LogisticRegression-NIDS",
         C: float = 1.0,
-        penalty: Optional[str] = None,
+        penalty: str | None = None,
         solver: str = "lbfgs",
         max_iter: int = 1000,
         tol: float = 1e-4,
@@ -43,7 +44,7 @@ class LogisticRegressionModel(BaseNetSentryModel):
         self.random_state = random_state
 
     def _create_estimator(self) -> LogisticRegression:
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "C": self.C,
             "solver": self.solver,
             "max_iter": self.max_iter,
@@ -55,7 +56,7 @@ class LogisticRegressionModel(BaseNetSentryModel):
             params["penalty"] = self.penalty
         return LogisticRegression(**params)
 
-    def get_feature_coefficients(self) -> Dict[str, float]:
+    def get_feature_coefficients(self) -> dict[str, float]:
         """Returns feature weights / coefficients learned by the model sorted by magnitude."""
         if self.model_ is None or not hasattr(self.model_, "coef_"):
             return {}

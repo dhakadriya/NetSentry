@@ -1,8 +1,9 @@
 """ModelExperiment ORM model for tracking machine learning training runs and performance."""
 
 import json
-from typing import Any, Dict, List, Optional
-from sqlalchemy import Column, Integer, String, Float, Boolean, Text, ForeignKey
+from typing import Any
+
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from src.database.base import Base, TimestampMixin
@@ -48,7 +49,7 @@ class ModelExperiment(Base, TimestampMixin):
     prediction_jobs = relationship("PredictionJob", back_populates="model_experiment")
 
     @property
-    def hyperparameters(self) -> Dict[str, Any]:
+    def hyperparameters(self) -> dict[str, Any]:
         """Deserializes hyperparameters_json into python dictionary."""
         if not self.hyperparameters_json:
             return {}
@@ -58,7 +59,7 @@ class ModelExperiment(Base, TimestampMixin):
             return {}
 
     @property
-    def selected_features(self) -> List[str]:
+    def selected_features(self) -> list[str]:
         """Deserializes selected_features_json into list of feature names."""
         if not self.selected_features_json:
             return []
@@ -68,7 +69,7 @@ class ModelExperiment(Base, TimestampMixin):
             return []
 
     @property
-    def confusion_matrix(self) -> Optional[Dict[str, int]]:
+    def confusion_matrix(self) -> dict[str, int] | None:
         """Deserializes confusion_matrix_json into dictionary representation."""
         if not self.confusion_matrix_json:
             return None
@@ -77,7 +78,7 @@ class ModelExperiment(Base, TimestampMixin):
         except (json.JSONDecodeError, TypeError):
             return None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes ModelExperiment to dictionary with formatted metrics."""
         return {
             "id": self.id,

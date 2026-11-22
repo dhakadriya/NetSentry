@@ -1,14 +1,14 @@
 """Database seed script populating demo datasets, experiments, and threat alerts."""
 
-import json
 from pathlib import Path
+
 from src.core.logger import get_logger
 from src.core.security import compute_sha256
 from src.database.connection import SessionLocal
-from src.database.init_db import init_database
+from src.database.crud.alert_repo import create_alert
 from src.database.crud.dataset_repo import create_dataset, get_dataset_by_checksum
 from src.database.crud.experiment_repo import create_experiment
-from src.database.crud.alert_repo import create_alert
+from src.database.init_db import init_database
 
 logger = get_logger("netsentry.seed")
 

@@ -1,15 +1,14 @@
 """Dataset schema validator inspecting headers, distributions, and integrity."""
 
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
+
 import numpy as np
 import pandas as pd
 
 from src.core.constants import (
-    DatasetType,
     UNSW_CATEGORICAL_COLUMNS,
-    UNSW_NUMERICAL_COLUMNS,
     UNSW_TARGET_LABEL,
+    DatasetType,
 )
 from src.core.exceptions import DatasetValidationError
 from src.schemas.dataset import DatasetValidationResult
@@ -23,8 +22,8 @@ class DatasetValidator:
 
     def validate_dataframe(self, df: pd.DataFrame) -> DatasetValidationResult:
         """Validates an in-memory DataFrame against benchmark schema rules."""
-        errors: List[str] = []
-        warnings: List[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         total_rows, total_cols = df.shape
         if total_rows == 0:
@@ -73,7 +72,7 @@ class DatasetValidator:
             warnings=warnings,
         )
 
-    def validate_file(self, file_path: Union[str, Path]) -> Tuple[DatasetValidationResult, pd.DataFrame]:
+    def validate_file(self, file_path: str | Path) -> tuple[DatasetValidationResult, pd.DataFrame]:
         """Reads a CSV file safely and verifies its schema."""
         path = Path(file_path)
         if not path.exists():

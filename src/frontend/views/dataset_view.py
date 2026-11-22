@@ -1,12 +1,13 @@
 """Dataset management and Exploratory Data Analysis (EDA) dashboard view."""
 
 from pathlib import Path
-import streamlit as st
+
 import pandas as pd
 import plotly.express as px
+import streamlit as st
 
 from src.core.security import compute_sha256, sanitize_filename
-from src.database.crud.dataset_repo import create_dataset, list_datasets, get_dataset_by_id
+from src.database.crud.dataset_repo import create_dataset, get_dataset_by_id, list_datasets
 from src.ml.validators.dataset_validator import DatasetValidator
 
 

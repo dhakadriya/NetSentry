@@ -1,6 +1,6 @@
 """Data cleaner handling missing values, infinite values, whitespace, and corrupt fields."""
 
-from typing import List, Optional
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -22,9 +22,9 @@ class DataCleaner(BaseEstimator, TransformerMixin):
         self.clip_non_negative = clip_non_negative
         self.numerical_fill_values_: dict = {}
         self.categorical_fill_values_: dict = {}
-        self.feature_names_in_: List[str] = []
+        self.feature_names_in_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "DataCleaner":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "DataCleaner":
         """Computes imputation values from training data."""
         df = X.copy()
         self.feature_names_in_ = list(df.columns)
@@ -88,6 +88,6 @@ class DataCleaner(BaseEstimator, TransformerMixin):
 
         return df
 
-    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+    def get_feature_names_out(self, input_features: list[str] | None = None) -> list[str]:
         """Returns feature names after cleaning transformation."""
         return input_features if input_features is not None else self.feature_names_in_

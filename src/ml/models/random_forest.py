@@ -1,6 +1,7 @@
 """Random Forest ensemble classifier implementation with class weight balancing."""
 
-from typing import Any, Dict, Optional
+from typing import Any
+
 from sklearn.ensemble import RandomForestClassifier
 
 from src.core.constants import MLAlgorithm
@@ -14,7 +15,7 @@ class RandomForestModel(BaseNetSentryModel):
         self,
         model_name: str = "RandomForest-NIDS",
         n_estimators: int = 100,
-        max_depth: Optional[int] = 16,
+        max_depth: int | None = 16,
         min_samples_split: int = 4,
         min_samples_leaf: int = 1,
         max_features: str = "sqrt",
@@ -49,7 +50,7 @@ class RandomForestModel(BaseNetSentryModel):
         self.n_jobs = n_jobs
 
     @property
-    def oob_score_(self) -> Optional[float]:
+    def oob_score_(self) -> float | None:
         """Returns the out-of-bag accuracy score if oob_score was enabled."""
         if self.model_ is not None and hasattr(self.model_, "oob_score_"):
             return float(self.model_.oob_score_)
@@ -68,7 +69,7 @@ class RandomForestModel(BaseNetSentryModel):
             n_jobs=self.n_jobs,
         )
 
-    def get_feature_importances(self) -> Dict[str, float]:
+    def get_feature_importances(self) -> dict[str, float]:
         """Returns ensemble-wide average feature importance scores."""
         if self.model_ is None or not hasattr(self.model_, "feature_importances_"):
             return {}

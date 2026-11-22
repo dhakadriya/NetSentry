@@ -5,17 +5,17 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from src.api.routes.alerts import get_alert_statistics, get_alerts
+from src.api.routes.compare import get_model_leaderboard
+from src.api.routes.datasets import get_dataset, get_datasets
+from src.api.routes.eda import get_dataset_eda
+from src.api.routes.health import health_check
+from src.api.routes.models import get_experiment, get_experiments
 from src.core.config import get_settings
 from src.database.base import Base
 from src.database.crud.alert_repo import create_alert
 from src.database.crud.dataset_repo import create_dataset
 from src.database.crud.experiment_repo import create_experiment
-from src.api.routes.health import health_check
-from src.api.routes.datasets import get_datasets, get_dataset
-from src.api.routes.eda import get_dataset_eda
-from src.api.routes.models import get_experiments, get_experiment
-from src.api.routes.compare import get_model_leaderboard
-from src.api.routes.alerts import get_alerts, get_alert_statistics
 
 
 @pytest.fixture

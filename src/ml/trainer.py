@@ -2,7 +2,8 @@
 
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -31,9 +32,9 @@ class NetSentryTrainer:
 
     def _instantiate_model(
         self,
-        algorithm: Union[MLAlgorithm, str],
-        model_name: Optional[str] = None,
-        hyperparameters: Optional[Dict[str, Any]] = None,
+        algorithm: MLAlgorithm | str,
+        model_name: str | None = None,
+        hyperparameters: dict[str, Any] | None = None,
         random_seed: int = 42,
     ) -> BaseNetSentryModel:
         """Instantiates algorithm class with hyperparameter bindings."""
@@ -80,13 +81,13 @@ class NetSentryTrainer:
     def train(
         self,
         df: pd.DataFrame,
-        algorithm: Union[MLAlgorithm, str] = MLAlgorithm.RANDOM_FOREST,
-        feature_strategy: Union[FeatureSelectionStrategy, str] = FeatureSelectionStrategy.NONE,
+        algorithm: MLAlgorithm | str = MLAlgorithm.RANDOM_FOREST,
+        feature_strategy: FeatureSelectionStrategy | str = FeatureSelectionStrategy.NONE,
         test_size: float = 0.25,
-        hyperparameters: Optional[Dict[str, Any]] = None,
+        hyperparameters: dict[str, Any] | None = None,
         random_seed: int = 42,
-        model_name: Optional[str] = None,
-    ) -> Tuple[BaseNetSentryModel, NetSentryPreprocessor, Any, ModelEvaluationMetrics, Path]:
+        model_name: str | None = None,
+    ) -> tuple[BaseNetSentryModel, NetSentryPreprocessor, Any, ModelEvaluationMetrics, Path]:
         """Executes full training pipeline and persists model package."""
         logger.info(
             "Starting model training [algo=%s, strategy=%s, rows=%d]",

@@ -1,12 +1,13 @@
 """Batch CSV network traffic flow classification and report generation endpoint."""
 
+import time
 from datetime import datetime, timezone
 from pathlib import Path
-import time
-from fastapi import APIRouter, Depends, HTTPException, status
+
 import joblib
 import numpy as np
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_app_settings, get_db_session

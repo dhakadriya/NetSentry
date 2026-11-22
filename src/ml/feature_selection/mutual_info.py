@@ -1,7 +1,5 @@
 """Mutual Information Gain feature selection capturing non-linear dependencies."""
 
-from typing import Dict, List, Optional
-import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_selection import mutual_info_classif
@@ -13,8 +11,8 @@ class MutualInformationSelector(BaseEstimator, TransformerMixin):
     def __init__(self, top_k: int = 20, random_state: int = 42):
         self.top_k = top_k
         self.random_state = random_state
-        self.selected_features_: List[str] = []
-        self.mutual_info_scores_: Dict[str, float] = {}
+        self.selected_features_: list[str] = []
+        self.mutual_info_scores_: dict[str, float] = {}
 
     def fit(self, X: pd.DataFrame, y: pd.Series) -> "MutualInformationSelector":
         """Computes mutual information classification gain across features."""
@@ -41,5 +39,5 @@ class MutualInformationSelector(BaseEstimator, TransformerMixin):
         available_cols = [c for c in self.selected_features_ if c in X.columns]
         return X[available_cols].copy()
 
-    def get_feature_names_out(self, input_features=None) -> List[str]:
+    def get_feature_names_out(self, input_features=None) -> list[str]:
         return self.selected_features_

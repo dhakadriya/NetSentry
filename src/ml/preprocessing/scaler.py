@@ -1,6 +1,6 @@
 """Numerical normalization and feature scaling transformers."""
 
-from typing import List, Optional
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -13,7 +13,7 @@ class NetworkFeatureScaler(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         method: str = "standard",
-        exclude_columns: Optional[List[str]] = None,
+        exclude_columns: list[str] | None = None,
         clip_extreme_values: bool = True,
         clip_range: tuple = (-10.0, 10.0),
     ):
@@ -21,10 +21,10 @@ class NetworkFeatureScaler(BaseEstimator, TransformerMixin):
         self.exclude_columns = exclude_columns or ["label", "Label", "attack_cat"]
         self.clip_extreme_values = clip_extreme_values
         self.clip_range = clip_range
-        self.scaler_: Optional[BaseEstimator] = None
-        self.scaled_columns_: List[str] = []
+        self.scaler_: BaseEstimator | None = None
+        self.scaled_columns_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "NetworkFeatureScaler":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "NetworkFeatureScaler":
         """Fits numerical scaler on training data."""
         df = X.copy()
         num_cols = df.select_dtypes(include=[np.number]).columns
@@ -60,6 +60,6 @@ class NetworkFeatureScaler(BaseEstimator, TransformerMixin):
 
         return df
 
-    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+    def get_feature_names_out(self, input_features: list[str] | None = None) -> list[str]:
         """Returns the list of scaled feature columns."""
         return self.scaled_columns_

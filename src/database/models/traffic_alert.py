@@ -1,8 +1,9 @@
 """TrafficAlert ORM model for recording detected intrusion alerts and threat levels."""
 
 import json
-from typing import Any, Dict, Optional
-from sqlalchemy import Column, Integer, String, Float, Boolean, Text, ForeignKey
+from typing import Any
+
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from src.database.base import Base, TimestampMixin
@@ -39,7 +40,7 @@ class TrafficAlert(Base, TimestampMixin):
     prediction_job = relationship("PredictionJob", back_populates="alerts")
 
     @property
-    def packet_details(self) -> Dict[str, Any]:
+    def packet_details(self) -> dict[str, Any]:
         """Deserializes packet_details_json into python dictionary."""
         if not self.packet_details_json:
             return {}
@@ -48,7 +49,7 @@ class TrafficAlert(Base, TimestampMixin):
         except (json.JSONDecodeError, TypeError):
             return {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes TrafficAlert to dictionary representation."""
         return {
             "id": self.id,

@@ -2,9 +2,9 @@
 
 import json
 from pathlib import Path
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_db_session, get_trainer
@@ -58,9 +58,7 @@ def train_model(
     # Check if this model beats existing best model (higher F1 and lower FPR)
     current_best = get_best_model(db)
     is_new_best = False
-    if current_best is None:
-        is_new_best = True
-    elif metrics.f1_score > (current_best.f1_score or 0.0):
+    if current_best is None or metrics.f1_score > (current_best.f1_score or 0.0):
         is_new_best = True
 
     # Persist experiment
@@ -100,10 +98,10 @@ def train_model(
     )
 
 
-@router.get("/experiments", response_model=List[ModelExperimentSummary])
+@router.get("/experiments", response_model=list[ModelExperimentSummary])
 def get_experiments(
     limit: int = 50,
-    algorithm: Optional[str] = None,
+    algorithm: str | None = None,
     db: Session = Depends(get_db_session),
 ):
     """Lists past training experiments and performance benchmarks."""

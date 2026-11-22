@@ -1,6 +1,7 @@
 """Detection report export and file download endpoints."""
 
 from pathlib import Path
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session

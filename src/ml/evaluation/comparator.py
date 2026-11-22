@@ -1,6 +1,7 @@
 """Multi-model benchmarking, comparative ranking, and trade-off evaluation engine."""
 
-from typing import Any, Dict, List
+from typing import Any
+
 import numpy as np
 
 
@@ -8,7 +9,7 @@ class ModelComparator:
     """Benchmarks and ranks multiple network intrusion models based on detection trade-offs."""
 
     @staticmethod
-    def rank_models(model_results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def rank_models(model_results: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Ranks models using an enterprise NIDS composite score prioritizing high F1 and minimal FPR."""
         scored = []
         for res in model_results:
@@ -42,7 +43,7 @@ class ModelComparator:
         return scored
 
     @staticmethod
-    def get_comparison_matrix(ranked_models: List[Dict[str, Any]]) -> Dict[str, List[Any]]:
+    def get_comparison_matrix(ranked_models: list[dict[str, Any]]) -> dict[str, list[Any]]:
         """Generates columnar metric matrix formatted for Plotly multi-bar and radar charts."""
         algorithms = [m.get("algorithm", m.get("model_name", "model")) for m in ranked_models]
         return {

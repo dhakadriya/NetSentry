@@ -2,7 +2,7 @@
 
 import time
 import uuid
-from typing import Callable
+
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from src.core.logger import get_logger

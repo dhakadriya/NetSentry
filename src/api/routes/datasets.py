@@ -1,9 +1,6 @@
 """Dataset upload, validation, and catalog management endpoints."""
 
-from pathlib import Path
-from typing import List, Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-import pandas as pd
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_app_settings, get_db_session
@@ -24,7 +21,7 @@ router = APIRouter(prefix="/api/v1/datasets", tags=["Datasets"])
 @router.post("/upload", response_model=DatasetUploadResponse, status_code=status.HTTP_201_CREATED)
 async def upload_dataset(
     file: UploadFile = File(...),
-    description: Optional[str] = Form(None),
+    description: str | None = Form(None),
     db: Session = Depends(get_db_session),
     settings: Settings = Depends(get_app_settings),
 ):
@@ -96,7 +93,7 @@ async def upload_dataset(
     )
 
 
-@router.get("", response_model=List[DatasetSummary])
+@router.get("", response_model=list[DatasetSummary])
 def get_datasets(
     limit: int = 50,
     offset: int = 0,

@@ -1,7 +1,8 @@
 """Pydantic schemas for intrusion alerts, threat intelligence, and filtering."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from src.core.constants import ThreatSeverity
@@ -11,7 +12,7 @@ class TrafficAlertResponse(BaseModel):
     """Schema representing an individual detected intrusion alert."""
 
     id: int = Field(..., ge=1)
-    prediction_job_id: Optional[int] = Field(None, ge=1)
+    prediction_job_id: int | None = Field(None, ge=1)
     attack_type: str
     confidence: float = Field(..., ge=0.0, le=1.0)
     severity: ThreatSeverity
@@ -23,8 +24,8 @@ class TrafficAlertResponse(BaseModel):
     source_bytes: int = Field(..., ge=0)
     destination_bytes: int = Field(..., ge=0)
     is_reviewed: bool = False
-    analyst_notes: Optional[str] = Field(None, max_length=1000)
-    mitre_technique_id: Optional[str] = None
+    analyst_notes: str | None = Field(None, max_length=1000)
+    mitre_technique_id: str | None = None
     created_at: datetime
 
     class Config:
@@ -35,7 +36,7 @@ class AlertReviewRequest(BaseModel):
     """Payload to acknowledge or annotate an intrusion alert."""
 
     is_reviewed: bool = Field(True, description="Mark whether alert was inspected by SOC analyst")
-    analyst_notes: Optional[str] = Field(None, max_length=1000, description="Analyst triage commentary")
+    analyst_notes: str | None = Field(None, max_length=1000, description="Analyst triage commentary")
 
 
 class ThreatStatsSummary(BaseModel):
@@ -46,8 +47,8 @@ class ThreatStatsSummary(BaseModel):
     high_alerts: int = Field(..., ge=0)
     medium_alerts: int = Field(..., ge=0)
     low_alerts: int = Field(..., ge=0)
-    attack_type_breakdown: Dict[str, int] = Field(default_factory=dict)
-    top_source_ips: List[Dict[str, Any]] = Field(default_factory=list)
+    attack_type_breakdown: dict[str, int] = Field(default_factory=dict)
+    top_source_ips: list[dict[str, Any]] = Field(default_factory=list)
     reviewed_count: int = Field(..., ge=0)
 
 
@@ -57,4 +58,4 @@ class AlertPaginationResponse(BaseModel):
     total: int = Field(..., ge=0)
     limit: int = Field(50, ge=1, le=500)
     offset: int = Field(0, ge=0)
-    items: List[TrafficAlertResponse] = Field(default_factory=list)
+    items: list[TrafficAlertResponse] = Field(default_factory=list)

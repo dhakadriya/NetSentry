@@ -1,8 +1,8 @@
 """Detection reports view providing downloadable CSV analysis files and executive summaries."""
 
 from pathlib import Path
+
 import streamlit as st
-import pandas as pd
 
 from src.database.crud.prediction_repo import list_prediction_jobs
 

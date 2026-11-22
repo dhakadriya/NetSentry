@@ -1,34 +1,35 @@
 """CRUD operations for machine learning model experiments and artifacts."""
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from src.database.models import DatasetRecord, ModelExperiment, PredictionJob, TrafficAlert
+from src.database.models import ModelExperiment
 
 
 def create_experiment(
     db: Session,
     model_name: str,
     algorithm: str,
-    dataset_id: Optional[int],
+    dataset_id: int | None,
     feature_strategy: str,
-    hyperparameters: Optional[Dict[str, Any]],
+    hyperparameters: dict[str, Any] | None,
     accuracy: float,
     precision: float,
     recall: float,
     f1_score: float,
     false_positive_rate: float,
     false_negative_rate: float,
-    roc_auc: Optional[float],
-    confusion_matrix: List[List[int]],
+    roc_auc: float | None,
+    confusion_matrix: list[list[int]],
     training_time_seconds: float,
     prediction_time_ms: float,
-    artifact_path: Optional[str] = None,
-    selected_features: Optional[List[str]] = None,
+    artifact_path: str | None = None,
+    selected_features: list[str] | None = None,
     is_best_model: bool = False,
-    notes: Optional[str] = None,
+    notes: str | None = None,
 ) -> ModelExperiment:
     """Creates a new model experiment record."""
     if is_best_model:
@@ -63,12 +64,12 @@ def create_experiment(
     return experiment
 
 
-def get_experiment_by_id(db: Session, experiment_id: int) -> Optional[ModelExperiment]:
+def get_experiment_by_id(db: Session, experiment_id: int) -> ModelExperiment | None:
     """Retrieves an experiment by its ID."""
     return db.query(ModelExperiment).filter(ModelExperiment.id == experiment_id).first()
 
 
-def get_best_model(db: Session) -> Optional[ModelExperiment]:
+def get_best_model(db: Session) -> ModelExperiment | None:
     """Retrieves current best performing model, or highest F1 score model if none flagged."""
     best = db.query(ModelExperiment).filter(ModelExperiment.is_best_model == True).first()
     if not best:
@@ -81,7 +82,7 @@ def get_best_model(db: Session) -> Optional[ModelExperiment]:
     return best
 
 
-def set_best_model(db: Session, experiment_id: int) -> Optional[ModelExperiment]:
+def set_best_model(db: Session, experiment_id: int) -> ModelExperiment | None:
     """Designates a specific model run as the current production best."""
     db.query(ModelExperiment).update({ModelExperiment.is_best_model: False})
     target = get_experiment_by_id(db, experiment_id)
@@ -105,7 +106,7 @@ def archive_experiment(db: Session, experiment_id: int) -> bool:
 
 
 def count_experiments(
-    db: Session, algorithm: Optional[str] = None, is_active: Optional[bool] = None
+    db: Session, algorithm: str | None = None, is_active: bool | None = None
 ) -> int:
     """Returns total count of experiments matching optional criteria."""
     query = db.query(func.count(ModelExperiment.id))
@@ -120,9 +121,9 @@ def list_experiments(
     db: Session,
     limit: int = 50,
     offset: int = 0,
-    algorithm: Optional[str] = None,
-    is_active: Optional[bool] = None,
-) -> List[ModelExperiment]:
+    algorithm: str | None = None,
+    is_active: bool | None = None,
+) -> list[ModelExperiment]:
     """Lists model experiments with pagination and optional filtering."""
     query = db.query(ModelExperiment)
     if algorithm:
@@ -132,7 +133,7 @@ def list_experiments(
     return query.order_by(ModelExperiment.id.desc()).offset(offset).limit(limit).all()
 
 
-def get_leaderboard(db: Session, limit: int = 20) -> List[ModelExperiment]:
+def get_leaderboard(db: Session, limit: int = 20) -> list[ModelExperiment]:
     """Returns top performing models ranked by F1-score and low FPR."""
     return (
         db.query(ModelExperiment)

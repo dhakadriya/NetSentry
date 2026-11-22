@@ -1,7 +1,7 @@
 """CRUD operations for network traffic dataset catalog."""
 
 import json
-from typing import List, Optional
+
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -18,8 +18,8 @@ def create_dataset(
     normal_count: int,
     attack_count: int,
     checksum_sha256: str,
-    columns: Optional[List[str]] = None,
-    description: Optional[str] = None,
+    columns: list[str] | None = None,
+    description: str | None = None,
 ) -> DatasetRecord:
     """Creates and persists a new dataset catalog entry."""
     record = DatasetRecord(
@@ -41,12 +41,12 @@ def create_dataset(
     return record
 
 
-def get_dataset_by_id(db: Session, dataset_id: int) -> Optional[DatasetRecord]:
+def get_dataset_by_id(db: Session, dataset_id: int) -> DatasetRecord | None:
     """Retrieves a dataset record by its primary key."""
     return db.query(DatasetRecord).filter(DatasetRecord.id == dataset_id).first()
 
 
-def get_dataset_by_checksum(db: Session, checksum: str) -> Optional[DatasetRecord]:
+def get_dataset_by_checksum(db: Session, checksum: str) -> DatasetRecord | None:
     """Finds an existing dataset with identical SHA-256 hash."""
     return db.query(DatasetRecord).filter(DatasetRecord.checksum_sha256 == checksum).first()
 
@@ -61,7 +61,7 @@ def exists_by_checksum(db: Session, checksum: str) -> bool:
     ) > 0
 
 
-def count_datasets(db: Session, dataset_type: Optional[str] = None) -> int:
+def count_datasets(db: Session, dataset_type: str | None = None) -> int:
     """Returns the total number of cataloged datasets matching optional type filter."""
     query = db.query(func.count(DatasetRecord.id))
     if dataset_type:
@@ -70,8 +70,8 @@ def count_datasets(db: Session, dataset_type: Optional[str] = None) -> int:
 
 
 def list_datasets(
-    db: Session, limit: int = 50, offset: int = 0, dataset_type: Optional[str] = None
-) -> List[DatasetRecord]:
+    db: Session, limit: int = 50, offset: int = 0, dataset_type: str | None = None
+) -> list[DatasetRecord]:
     """Returns cataloged datasets ordered by creation time descending with optional type filtering."""
     query = db.query(DatasetRecord)
     if dataset_type:

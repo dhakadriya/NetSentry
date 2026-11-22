@@ -1,7 +1,6 @@
 """Unit tests for intrusion evaluation metrics, confusion diagnostics, and model ranking."""
 
 import numpy as np
-import pytest
 
 from src.ml.evaluation.comparator import ModelComparator
 from src.ml.evaluation.confusion import format_confusion_matrix

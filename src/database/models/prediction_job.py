@@ -1,7 +1,8 @@
 """PredictionJob ORM model for recording batch intrusion detection runs."""
 
-from typing import Any, Dict, Optional
-from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey
+from typing import Any
+
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from src.database.base import Base, TimestampMixin
@@ -41,7 +42,7 @@ class PredictionJob(Base, TimestampMixin):
             return 0.0
         return round((self.malicious_count / self.total_records) * 100.0, 2)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes PredictionJob to dictionary with formatted metrics."""
         return {
             "id": self.id,

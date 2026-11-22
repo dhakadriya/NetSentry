@@ -1,6 +1,5 @@
 """Cross-Origin Resource Sharing (CORS) security configuration."""
 
-from typing import List, Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,7 +8,7 @@ from src.core.config import Settings
 
 def setup_cors(app: FastAPI, settings: Settings) -> None:
     """Configures CORS policies for safe browser communication with Streamlit frontend."""
-    origins: List[str] = []
+    origins: list[str] = []
     if isinstance(settings.allowed_origins, str):
         origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
     elif isinstance(settings.allowed_origins, list):

@@ -1,11 +1,12 @@
 """Model training studio view for tuning hyperparameters and evaluating classifiers."""
 
 from pathlib import Path
-import streamlit as st
+
 import pandas as pd
+import streamlit as st
 
 from src.core.constants import FeatureSelectionStrategy, MLAlgorithm
-from src.database.crud.dataset_repo import list_datasets, get_dataset_by_id
+from src.database.crud.dataset_repo import get_dataset_by_id, list_datasets
 from src.database.crud.experiment_repo import create_experiment, get_best_model
 from src.frontend.components.charts import render_confusion_matrix_chart
 from src.frontend.components.input import render_hyperparameter_controls

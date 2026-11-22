@@ -1,18 +1,18 @@
 """Custom domain exceptions for NetSentry."""
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class NetSentryException(Exception):
     """Base exception for all NetSentry domain errors."""
     status_code: int = 500
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+    def __init__(self, message: str, details: dict[str, Any] | None = None):
         super().__init__(message)
         self.message = message
         self.details = details or {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes error to structured JSON payload dictionary."""
         return {
             "error_type": self.__class__.__name__,

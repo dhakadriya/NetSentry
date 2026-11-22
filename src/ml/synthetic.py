@@ -1,17 +1,9 @@
 """Synthetic network flow dataset generator adhering to the UNSW-NB15 schema."""
 
 from pathlib import Path
+
 import numpy as np
 import pandas as pd
-from typing import Optional
-
-from src.core.constants import (
-    COMMON_PROTOCOLS,
-    COMMON_SERVICES,
-    COMMON_STATES,
-    UNSW_CATEGORICAL_COLUMNS,
-    UNSW_NUMERICAL_COLUMNS,
-)
 
 
 def generate_unsw_sample(

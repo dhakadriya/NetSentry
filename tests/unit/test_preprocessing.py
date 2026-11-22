@@ -6,8 +6,8 @@ import pytest
 
 from src.ml.preprocessing.cleaner import DataCleaner
 from src.ml.preprocessing.encoder import NetworkCategoricalEncoder
-from src.ml.preprocessing.scaler import NetworkFeatureScaler
 from src.ml.preprocessing.pipeline import NetSentryPreprocessor
+from src.ml.preprocessing.scaler import NetworkFeatureScaler
 
 
 @pytest.fixture

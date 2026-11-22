@@ -1,9 +1,10 @@
 """Exploratory Data Analysis (EDA) API endpoint."""
 
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, status
+
 import numpy as np
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_db_session

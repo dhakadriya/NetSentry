@@ -1,6 +1,6 @@
 """Correlation filter feature selection removing highly collinear network flow metrics."""
 
-from typing import List, Optional
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -12,10 +12,10 @@ class CorrelationFilterSelector(BaseEstimator, TransformerMixin):
     def __init__(self, threshold: float = 0.85, min_features: int = 8):
         self.threshold = threshold
         self.min_features = min_features
-        self.selected_features_: List[str] = []
-        self.dropped_features_: List[str] = []
+        self.selected_features_: list[str] = []
+        self.dropped_features_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "CorrelationFilterSelector":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "CorrelationFilterSelector":
         """Calculates pairwise correlations and identifies collinear feature pairs to drop."""
         df = X.copy()
         corr_matrix = df.corr().abs()
@@ -49,5 +49,5 @@ class CorrelationFilterSelector(BaseEstimator, TransformerMixin):
         available_cols = [c for c in self.selected_features_ if c in X.columns]
         return X[available_cols].copy()
 
-    def get_feature_names_out(self, input_features=None) -> List[str]:
+    def get_feature_names_out(self, input_features=None) -> list[str]:
         return self.selected_features_

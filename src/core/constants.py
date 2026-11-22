@@ -1,7 +1,6 @@
 """Network security constants, column definitions, and enumerations for NetSentry."""
 
 from enum import Enum
-from typing import Dict, List
 
 
 class DatasetType(str, Enum):
@@ -43,7 +42,7 @@ class TrafficClass(int, Enum):
 
 
 # Attack category mappings
-ATTACK_CATEGORIES: List[str] = [
+ATTACK_CATEGORIES: list[str] = [
     "Normal",
     "Fuzzers",
     "Analysis",
@@ -57,7 +56,7 @@ ATTACK_CATEGORIES: List[str] = [
 ]
 
 # MITRE ATT&CK Technique ID mappings for UNSW attack classifications
-MITRE_ATTACK_MAPPING: Dict[str, Dict[str, str]] = {
+MITRE_ATTACK_MAPPING: dict[str, dict[str, str]] = {
     "Normal": {"technique_id": "T0000", "technique_name": "Benign Traffic", "tactic": "None"},
     "Fuzzers": {"technique_id": "T1499.004", "technique_name": "Application or System Exploitation (Fuzzing)", "tactic": "Impact"},
     "Analysis": {"technique_id": "T1040", "technique_name": "Network Sniffing / Port Scanning", "tactic": "Credential Access / Discovery"},
@@ -71,7 +70,7 @@ MITRE_ATTACK_MAPPING: Dict[str, Dict[str, str]] = {
 }
 
 # Attack severity mapping
-ATTACK_SEVERITY_MAP: Dict[str, ThreatSeverity] = {
+ATTACK_SEVERITY_MAP: dict[str, ThreatSeverity] = {
     "Normal": ThreatSeverity.LOW,
     "Fuzzers": ThreatSeverity.MEDIUM,
     "Analysis": ThreatSeverity.MEDIUM,
@@ -85,7 +84,7 @@ ATTACK_SEVERITY_MAP: Dict[str, ThreatSeverity] = {
 }
 
 # Default Port Mappings for Well-Known Network Services
-DEFAULT_SERVICE_PORTS: Dict[str, int] = {
+DEFAULT_SERVICE_PORTS: dict[str, int] = {
     "http": 80,
     "ssl": 443,
     "ftp": 21,
@@ -98,9 +97,9 @@ DEFAULT_SERVICE_PORTS: Dict[str, int] = {
 }
 
 # UNSW-NB15 Standard Schema
-UNSW_CATEGORICAL_COLUMNS: List[str] = ["proto", "service", "state"]
+UNSW_CATEGORICAL_COLUMNS: list[str] = ["proto", "service", "state"]
 
-UNSW_NUMERICAL_COLUMNS: List[str] = [
+UNSW_NUMERICAL_COLUMNS: list[str] = [
     "dur", "sbytes", "dbytes", "sttl", "dttl", "sloss", "dloss",
     "Sload", "Dload", "Spkts", "Dpkts", "swin", "dwin", "stcpb", "dtcpb",
     "smeansz", "dmeansz", "trans_depth", "res_bdy_len", "sjit", "djit",
@@ -114,6 +113,6 @@ UNSW_TARGET_LABEL: str = "label"
 UNSW_ATTACK_CAT: str = "attack_cat"
 
 # Common Network Protocols
-COMMON_PROTOCOLS: List[str] = ["tcp", "udp", "icmp", "arp", "ospf", "sctp"]
-COMMON_SERVICES: List[str] = ["-", "http", "ftp", "smtp", "ssh", "dns", "ftp-data", "pop3", "ssl", "snmp"]
-COMMON_STATES: List[str] = ["FIN", "CON", "INT", "REQ", "RST", "ACC", "CLO"]
+COMMON_PROTOCOLS: list[str] = ["tcp", "udp", "icmp", "arp", "ospf", "sctp"]
+COMMON_SERVICES: list[str] = ["-", "http", "ftp", "smtp", "ssh", "dns", "ftp-data", "pop3", "ssl", "snmp"]
+COMMON_STATES: list[str] = ["FIN", "CON", "INT", "REQ", "RST", "ACC", "CLO"]

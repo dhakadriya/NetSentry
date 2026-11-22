@@ -1,8 +1,9 @@
 """DatasetRecord ORM model representing uploaded and cataloged network flow datasets."""
 
 import json
-from typing import Any, Dict, List, Optional
-from sqlalchemy import Column, Integer, String, Boolean, Text
+from typing import Any
+
+from sqlalchemy import Boolean, Column, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from src.database.base import Base, TimestampMixin
@@ -31,7 +32,7 @@ class DatasetRecord(Base, TimestampMixin):
     prediction_jobs = relationship("PredictionJob", back_populates="dataset", cascade="all, delete-orphan")
 
     @property
-    def column_names(self) -> List[str]:
+    def column_names(self) -> list[str]:
         """Deserializes columns_json into list of column name strings."""
         if not self.columns_json:
             return []
@@ -40,7 +41,7 @@ class DatasetRecord(Base, TimestampMixin):
         except (json.JSONDecodeError, TypeError):
             return []
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes DatasetRecord to dictionary with ISO-formatted timestamps."""
         return {
             "id": self.id,

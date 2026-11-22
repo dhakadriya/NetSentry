@@ -2,7 +2,6 @@
 Main Streamlit Application Controller and View Router
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -14,24 +13,23 @@ if str(root_dir) not in sys.path:
 import streamlit as st
 
 from src.database.connection import get_session_factory
-from src.database.init_db import init_db
 from src.database.crud.experiment_repo import get_best_model
+from src.database.init_db import init_db
 from src.frontend.components.navbar import render_navbar
-
-from src.frontend.views.overview_view import render_overview_view
-from src.frontend.views.dataset_view import render_dataset_view
-from src.frontend.views.training_view import render_training_view
-from src.frontend.views.comparison_view import render_comparison_view
-from src.frontend.views.detection_view import render_detection_view
 from src.frontend.views.alerts_view import render_alerts_view
+from src.frontend.views.comparison_view import render_comparison_view
+from src.frontend.views.dataset_view import render_dataset_view
+from src.frontend.views.detection_view import render_detection_view
+from src.frontend.views.overview_view import render_overview_view
 from src.frontend.views.reports_view import render_reports_view
+from src.frontend.views.training_view import render_training_view
 
 
 def load_custom_css() -> None:
     """Injects custom cyber-dark glassmorphism styling."""
     css_file = Path(__file__).resolve().parent / "styles" / "main.css"
     if css_file.exists():
-        with open(css_file, "r", encoding="utf-8") as f:
+        with open(css_file, encoding="utf-8") as f:
             custom_css = f.read()
             st.markdown(f"<style>{custom_css}</style>", unsafe_allow_html=True)
 

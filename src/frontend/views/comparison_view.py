@@ -1,9 +1,8 @@
 """Model comparison and 4-algorithm benchmark view."""
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
-from src.database.crud.dataset_repo import list_datasets, get_dataset_by_id
 from src.database.crud.experiment_repo import get_leaderboard
 from src.frontend.components.charts import render_algorithm_comparison_chart
 from src.ml.evaluation.comparator import ModelComparator

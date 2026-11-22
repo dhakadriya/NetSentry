@@ -1,6 +1,7 @@
 """K-Nearest Neighbors (KNN) instance-based classifier implementation."""
 
-from typing import Any, Dict
+from typing import Any
+
 from sklearn.neighbors import KNeighborsClassifier
 
 from src.core.constants import MLAlgorithm

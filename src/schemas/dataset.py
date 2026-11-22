@@ -1,7 +1,7 @@
 """Pydantic schemas for network traffic datasets and exploratory analysis."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -18,7 +18,7 @@ class DatasetSummary(BaseModel):
     checksum_sha256: str = Field(..., description="Cryptographic SHA-256 hash", min_length=64, max_length=64)
     is_validated: bool = Field(True, description="Whether schema integrity was verified")
     created_at: datetime = Field(..., description="Timestamp of dataset cataloging")
-    description: Optional[str] = Field(None, description="Optional dataset description")
+    description: str | None = Field(None, description="Optional dataset description")
 
     class Config:
         from_attributes = True
@@ -45,10 +45,10 @@ class DatasetValidationResult(BaseModel):
     detected_type: str
     total_rows: int = Field(..., ge=0)
     total_columns: int = Field(..., ge=0)
-    missing_required_columns: List[str] = Field(default_factory=list)
-    null_value_counts: Dict[str, int] = Field(default_factory=dict)
-    errors: List[str] = Field(default_factory=list)
-    warnings: List[str] = Field(default_factory=list)
+    missing_required_columns: list[str] = Field(default_factory=list)
+    null_value_counts: dict[str, int] = Field(default_factory=dict)
+    errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list)
 
 
 class DatasetEDAResponse(BaseModel):
@@ -58,11 +58,11 @@ class DatasetEDAResponse(BaseModel):
     filename: str
     total_rows: int = Field(..., ge=0)
     feature_count: int = Field(..., ge=0)
-    class_distribution: Dict[str, int] = Field(default_factory=dict)
-    attack_category_distribution: Dict[str, int] = Field(default_factory=dict)
-    protocol_distribution: Dict[str, int] = Field(default_factory=dict)
-    service_distribution: Dict[str, int] = Field(default_factory=dict)
-    numerical_summary: Dict[str, Dict[str, float]] = Field(default_factory=dict)
+    class_distribution: dict[str, int] = Field(default_factory=dict)
+    attack_category_distribution: dict[str, int] = Field(default_factory=dict)
+    protocol_distribution: dict[str, int] = Field(default_factory=dict)
+    service_distribution: dict[str, int] = Field(default_factory=dict)
+    numerical_summary: dict[str, dict[str, float]] = Field(default_factory=dict)
 
 
 class DatasetPaginationResponse(BaseModel):
@@ -71,4 +71,4 @@ class DatasetPaginationResponse(BaseModel):
     total: int = Field(..., ge=0, description="Total matching datasets in database")
     limit: int = Field(50, ge=1, le=500)
     offset: int = Field(0, ge=0)
-    items: List[DatasetSummary] = Field(default_factory=list)
+    items: list[DatasetSummary] = Field(default_factory=list)

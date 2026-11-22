@@ -1,6 +1,7 @@
 """FastAPI dependency injection providers."""
 
-from typing import Generator
+from collections.abc import Generator
+
 from fastapi import Depends, Request
 from sqlalchemy.orm import Session
 

@@ -1,7 +1,6 @@
 """Categorical encoding for network protocol, service, and connection state features."""
 
-from typing import Dict, List, Optional, Set
-import numpy as np
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import OneHotEncoder
@@ -12,17 +11,17 @@ class NetworkCategoricalEncoder(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        categorical_columns: Optional[List[str]] = None,
+        categorical_columns: list[str] | None = None,
         max_categories: int = 20,
     ):
         self.categorical_columns = categorical_columns or ["proto", "service", "state"]
         self.max_categories = max_categories
-        self.encoder_: Optional[OneHotEncoder] = None
-        self.active_cat_cols_: List[str] = []
-        self.top_categories_: Dict[str, Set[str]] = {}
-        self.encoded_feature_names_: List[str] = []
+        self.encoder_: OneHotEncoder | None = None
+        self.active_cat_cols_: list[str] = []
+        self.top_categories_: dict[str, set[str]] = {}
+        self.encoded_feature_names_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "NetworkCategoricalEncoder":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "NetworkCategoricalEncoder":
         """Fits OneHotEncoder on active categorical columns, pruning rare tail categories."""
         df = X.copy()
         self.active_cat_cols_ = [c for c in self.categorical_columns if c in df.columns]
@@ -75,6 +74,6 @@ class NetworkCategoricalEncoder(BaseEstimator, TransformerMixin):
         result = pd.concat([non_cat_df, encoded_df], axis=1)
         return result
 
-    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+    def get_feature_names_out(self, input_features: list[str] | None = None) -> list[str]:
         """Returns the list of encoded one-hot column names."""
         return self.encoded_feature_names_

@@ -1,8 +1,8 @@
 """Executive overview dashboard view showing high-level telemetry, KPIs, and recent threat events."""
 
-import streamlit as st
+
 import pandas as pd
-from typing import Any, Dict
+import streamlit as st
 
 from src.frontend.components.card import render_metric_card, render_threat_card
 from src.frontend.components.charts import render_threat_distribution_pie

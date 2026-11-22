@@ -1,28 +1,29 @@
 """FastAPI application factory, lifespan lifecycle manager, and router configuration."""
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
-import uvicorn
 
-from src.core.config import get_settings
-from src.core.logger import get_logger
-from src.database.init_db import init_database
-from src.database.seed import seed_database
+import uvicorn
+from fastapi import FastAPI
+
 from src.api.middleware.cors import setup_cors
 from src.api.middleware.error_handler import register_error_handlers
 from src.api.middleware.logging_middleware import RequestLoggingMiddleware
 from src.api.middleware.rate_limiter import InMemoryRateLimiterMiddleware
+from src.api.routes.alerts import router as alerts_router
+from src.api.routes.compare import router as compare_router
+from src.api.routes.datasets import router as datasets_router
+from src.api.routes.eda import router as eda_router
+from src.api.routes.export import router as export_router
 
 # Route imports
 from src.api.routes.health import router as health_router
-from src.api.routes.datasets import router as datasets_router
-from src.api.routes.eda import router as eda_router
 from src.api.routes.models import router as models_router
-from src.api.routes.compare import router as compare_router
-from src.api.routes.predict_single import router as predict_single_router
 from src.api.routes.predict_batch import router as predict_batch_router
-from src.api.routes.alerts import router as alerts_router
-from src.api.routes.export import router as export_router
+from src.api.routes.predict_single import router as predict_single_router
+from src.core.config import get_settings
+from src.core.logger import get_logger
+from src.database.init_db import init_database
+from src.database.seed import seed_database
 
 logger = get_logger("netsentry.api")
 

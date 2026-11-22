@@ -1,12 +1,11 @@
 """Intrusion alert management, analyst reviews, and threat statistics endpoints."""
 
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_db_session
 from src.database.crud.alert_repo import (
-    get_alert_by_id,
     get_threat_stats,
     list_alerts,
     update_alert_review,
@@ -16,11 +15,11 @@ from src.schemas.alert import AlertReviewRequest, ThreatStatsSummary, TrafficAle
 router = APIRouter(prefix="/api/v1/alerts", tags=["Threat Alerts & Intelligence"])
 
 
-@router.get("", response_model=List[TrafficAlertResponse])
+@router.get("", response_model=list[TrafficAlertResponse])
 def get_alerts(
-    severity: Optional[str] = None,
-    attack_type: Optional[str] = None,
-    is_reviewed: Optional[bool] = None,
+    severity: str | None = None,
+    attack_type: str | None = None,
+    is_reviewed: bool | None = None,
     limit: int = 50,
     offset: int = 0,
     db: Session = Depends(get_db_session),

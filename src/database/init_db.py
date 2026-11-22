@@ -3,12 +3,13 @@
 from src.core.logger import get_logger
 from src.database.base import Base
 from src.database.connection import engine
+from src.database.models.audit_log import AuditLog  # noqa: F401
+
 # Import all models to ensure registration in Base.metadata
 from src.database.models.dataset import DatasetRecord  # noqa: F401
 from src.database.models.model_experiment import ModelExperiment  # noqa: F401
 from src.database.models.prediction_job import PredictionJob  # noqa: F401
 from src.database.models.traffic_alert import TrafficAlert  # noqa: F401
-from src.database.models.audit_log import AuditLog  # noqa: F401
 
 logger = get_logger("netsentry.init_db")
 

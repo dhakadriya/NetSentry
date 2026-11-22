@@ -1,13 +1,14 @@
 """Input controls and parameter configuration form primitives."""
 
+from typing import Any
+
 import streamlit as st
-from typing import Any, Dict
 
 
-def render_hyperparameter_controls(algorithm: str) -> Dict[str, Any]:
+def render_hyperparameter_controls(algorithm: str) -> dict[str, Any]:
     """Renders dynamic parameter tuning widgets for selected ML algorithm."""
     st.markdown("#### Hyperparameter Tuning")
-    params: Dict[str, Any] = {}
+    params: dict[str, Any] = {}
 
     if algorithm == "random_forest":
         c1, c2 = st.columns(2)
@@ -35,7 +36,7 @@ def render_hyperparameter_controls(algorithm: str) -> Dict[str, Any]:
     return params
 
 
-def render_packet_input_form() -> Dict[str, Any]:
+def render_packet_input_form() -> dict[str, Any]:
     """Renders interactive form controls to test single network flow records."""
     c1, c2, c3 = st.columns(3)
     proto = c1.selectbox("Protocol (proto)", ["tcp", "udp", "icmp"], index=0)

@@ -3,8 +3,8 @@
 import hashlib
 import re
 from pathlib import Path
-from src.core.exceptions import SecurityViolationError
 
+from src.core.exceptions import SecurityViolationError
 
 ALLOWED_EXTENSIONS = {".csv"}
 ALLOWED_MIME_TYPES = {
@@ -25,7 +25,7 @@ def validate_mime_type(content_type: str | None) -> None:
     """
     if not content_type:
         raise SecurityViolationError("Content-Type header is required for file uploads.")
-    
+
     normalized = content_type.split(";")[0].strip().lower()
     if normalized not in ALLOWED_MIME_TYPES:
         raise SecurityViolationError(

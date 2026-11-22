@@ -1,6 +1,7 @@
 """Decision Tree classifier implementation with tree depth and split optimization."""
 
-from typing import Any, Dict, Optional
+from typing import Any
+
 from sklearn.tree import DecisionTreeClassifier
 
 from src.core.constants import MLAlgorithm
@@ -14,7 +15,7 @@ class DecisionTreeModel(BaseNetSentryModel):
         self,
         model_name: str = "DecisionTree-NIDS",
         criterion: str = "gini",
-        max_depth: Optional[int] = 12,
+        max_depth: int | None = 12,
         min_samples_split: int = 5,
         min_samples_leaf: int = 2,
         ccp_alpha: float = 0.0,
@@ -67,7 +68,7 @@ class DecisionTreeModel(BaseNetSentryModel):
             random_state=self.random_state,
         )
 
-    def get_feature_importances(self) -> Dict[str, float]:
+    def get_feature_importances(self) -> dict[str, float]:
         """Returns Gini importance for each network traffic feature."""
         if self.model_ is None or not hasattr(self.model_, "feature_importances_"):
             return {}

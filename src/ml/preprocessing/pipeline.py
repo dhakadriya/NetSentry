@@ -1,11 +1,10 @@
 """End-to-end data preprocessing pipeline orchestrating cleaning, encoding, and scaling."""
 
-from typing import List, Optional, Tuple
-import numpy as np
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from src.core.constants import UNSW_TARGET_LABEL, UNSW_ATTACK_CAT
+from src.core.constants import UNSW_ATTACK_CAT, UNSW_TARGET_LABEL
 from src.ml.preprocessing.cleaner import DataCleaner
 from src.ml.preprocessing.encoder import NetworkCategoricalEncoder
 from src.ml.preprocessing.scaler import NetworkFeatureScaler
@@ -18,7 +17,7 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
         self,
         scaling_method: str = "standard",
         drop_duplicates: bool = False,
-        categorical_columns: Optional[List[str]] = None,
+        categorical_columns: list[str] | None = None,
     ):
         self.scaling_method = scaling_method
         self.drop_duplicates = drop_duplicates
@@ -27,14 +26,14 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
         self.cleaner = DataCleaner(drop_duplicates=drop_duplicates)
         self.encoder = NetworkCategoricalEncoder(categorical_columns=self.categorical_columns)
         self.scaler = NetworkFeatureScaler(method=scaling_method)
-        self.feature_names_: List[str] = []
+        self.feature_names_: list[str] = []
 
     @property
     def n_features_(self) -> int:
         """Returns the total number of engineered features."""
         return len(self.feature_names_)
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "NetSentryPreprocessor":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "NetSentryPreprocessor":
         """Fits cleaner, categorical encoder, and scaler sequentially on training flow records."""
         # 1. Clean
         df_clean = self.cleaner.fit_transform(X)
@@ -65,7 +64,7 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
 
     def split_X_y(
         self, df: pd.DataFrame
-    ) -> Tuple[pd.DataFrame, Optional[pd.Series], Optional[pd.Series]]:
+    ) -> tuple[pd.DataFrame, pd.Series | None, pd.Series | None]:
         """Splits processed DataFrame into feature matrix X, binary target y, and multiclass attack_cat."""
         df_trans = self.transform(df)
 
@@ -96,6 +95,6 @@ class NetSentryPreprocessor(BaseEstimator, TransformerMixin):
 
         return X, y, attack_cats
 
-    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+    def get_feature_names_out(self, input_features: list[str] | None = None) -> list[str]:
         """Returns the list of output engineered feature names."""
         return self.feature_names_

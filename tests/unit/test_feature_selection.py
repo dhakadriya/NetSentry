@@ -5,11 +5,11 @@ import pandas as pd
 import pytest
 
 from src.core.constants import FeatureSelectionStrategy
-from src.ml.feature_selection.variance_threshold import VarianceThresholdSelector
 from src.ml.feature_selection.correlation_filter import CorrelationFilterSelector
 from src.ml.feature_selection.importance_selector import RandomForestImportanceSelector
 from src.ml.feature_selection.mutual_info import MutualInformationSelector
 from src.ml.feature_selection.selector_factory import get_feature_selector
+from src.ml.feature_selection.variance_threshold import VarianceThresholdSelector
 
 
 @pytest.fixture

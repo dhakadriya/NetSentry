@@ -1,7 +1,6 @@
 """Variance threshold feature selection removing zero and near-zero variance features."""
 
-from typing import List, Optional
-import numpy as np
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_selection import VarianceThreshold
@@ -13,10 +12,10 @@ class VarianceThresholdSelector(BaseEstimator, TransformerMixin):
     def __init__(self, threshold: float = 0.01, min_features: int = 5):
         self.threshold = threshold
         self.min_features = min_features
-        self.selector_: Optional[VarianceThreshold] = None
-        self.selected_features_: List[str] = []
+        self.selector_: VarianceThreshold | None = None
+        self.selected_features_: list[str] = []
 
-    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "VarianceThresholdSelector":
+    def fit(self, X: pd.DataFrame, y: pd.Series | None = None) -> "VarianceThresholdSelector":
         """Calculates feature variances and determines active mask."""
         df = X.copy()
         variances = df.var()
@@ -34,5 +33,5 @@ class VarianceThresholdSelector(BaseEstimator, TransformerMixin):
         available_cols = [c for c in self.selected_features_ if c in X.columns]
         return X[available_cols].copy()
 
-    def get_feature_names_out(self, input_features=None) -> List[str]:
+    def get_feature_names_out(self, input_features=None) -> list[str]:
         return self.selected_features_

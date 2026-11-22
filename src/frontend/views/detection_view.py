@@ -1,14 +1,14 @@
 """Intrusion detection inspection view for real-time packet classification and batch CSV scanning."""
 
-from pathlib import Path
 import time
-import streamlit as st
+from pathlib import Path
+
 import joblib
-import numpy as np
 import pandas as pd
+import streamlit as st
 
 from src.database.crud.alert_repo import create_alert
-from src.database.crud.dataset_repo import list_datasets, get_dataset_by_id
+from src.database.crud.dataset_repo import list_datasets
 from src.database.crud.experiment_repo import get_best_model
 from src.frontend.components.input import render_packet_input_form
 

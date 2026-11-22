@@ -1,7 +1,8 @@
 """AuditLog ORM model for recording administrative, training, and detection events."""
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any
+
 from sqlalchemy import Column, Integer, String, Text
 
 from src.database.base import Base, TimestampMixin
@@ -21,7 +22,7 @@ class AuditLog(Base, TimestampMixin):
     details_json = Column(Text, nullable=True)
 
     @property
-    def details(self) -> Dict[str, Any]:
+    def details(self) -> dict[str, Any]:
         """Deserializes details_json into python dictionary."""
         if not self.details_json:
             return {}
@@ -30,7 +31,7 @@ class AuditLog(Base, TimestampMixin):
         except (json.JSONDecodeError, TypeError):
             return {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serializes AuditLog to dictionary representation."""
         return {
             "id": self.id,

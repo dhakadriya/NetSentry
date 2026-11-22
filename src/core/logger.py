@@ -5,7 +5,7 @@ import logging
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 def get_utc_now_iso() -> str:
@@ -17,7 +17,7 @@ class JSONFormatter(logging.Formatter):
     """Custom logging formatter outputting structured JSON logs."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
+        log_entry: dict[str, Any] = {
             "timestamp": get_utc_now_iso(),
             "level": record.levelname,
             "logger": record.name,
@@ -64,7 +64,7 @@ def log_security_audit(
     event_type: str,
     client_ip: str,
     severity: str,
-    details: Optional[Dict[str, Any]] = None,
+    details: dict[str, Any] | None = None,
 ) -> None:
     """Emits a structured security audit log entry."""
     payload = {
@@ -81,7 +81,7 @@ def log_ml_event(
     logger: logging.Logger,
     model_name: str,
     action: str,
-    metrics: Optional[Dict[str, Any]] = None,
+    metrics: dict[str, Any] | None = None,
 ) -> None:
     """Emits an ML training or inference lifecycle log entry."""
     payload = {

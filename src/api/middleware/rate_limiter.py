@@ -3,7 +3,7 @@
 import json
 import time
 from collections import defaultdict
-from typing import Dict, List
+
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 
@@ -13,7 +13,7 @@ class InMemoryRateLimiterMiddleware:
     def __init__(self, app: ASGIApp, max_requests_per_minute: int = 120):
         self.app = app
         self.max_requests = max_requests_per_minute
-        self.client_records: Dict[str, List[float]] = defaultdict(list)
+        self.client_records: dict[str, list[float]] = defaultdict(list)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] != "http":

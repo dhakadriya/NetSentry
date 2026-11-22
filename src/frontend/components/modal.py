@@ -1,10 +1,11 @@
 """Modal and detail dialog components for threat inspection."""
 
+from typing import Any
+
 import streamlit as st
-from typing import Any, Dict
 
 
-def render_alert_inspection_dialog(alert: Dict[str, Any]) -> None:
+def render_alert_inspection_dialog(alert: dict[str, Any]) -> None:
     """Renders a detailed inspection card for a flagged intrusion packet."""
     with st.expander(f"🔍 Inspect Threat Event #{alert.get('id', 'N/A')} - {alert.get('attack_type', 'Attack')}", expanded=True):
         c1, c2, c3, c4 = st.columns(4)

@@ -1,7 +1,8 @@
 """Pydantic schemas for machine learning training, evaluation, and model comparison."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from src.core.constants import FeatureSelectionStrategy, MLAlgorithm
@@ -15,10 +16,10 @@ class TrainModelRequest(BaseModel):
     feature_strategy: FeatureSelectionStrategy = Field(
         default=FeatureSelectionStrategy.NONE, description="Feature selection strategy"
     )
-    hyperparameters: Optional[Dict[str, Any]] = Field(default_factory=dict)
+    hyperparameters: dict[str, Any] | None = Field(default_factory=dict)
     test_size: float = Field(default=0.25, ge=0.1, le=0.5, description="Holdout test proportion")
     random_seed: int = Field(default=42, ge=0, description="Reproducibility seed")
-    model_name: Optional[str] = Field(None, min_length=2, max_length=128)
+    model_name: str | None = Field(None, min_length=2, max_length=128)
 
 
 class ModelEvaluationMetrics(BaseModel):
@@ -30,8 +31,8 @@ class ModelEvaluationMetrics(BaseModel):
     f1_score: float = Field(..., ge=0.0, le=1.0)
     false_positive_rate: float = Field(..., ge=0.0, le=1.0)
     false_negative_rate: float = Field(..., ge=0.0, le=1.0)
-    roc_auc: Optional[float] = Field(None, ge=0.0, le=1.0)
-    confusion_matrix: List[List[int]] = Field(default_factory=list)
+    roc_auc: float | None = Field(None, ge=0.0, le=1.0)
+    confusion_matrix: list[list[int]] = Field(default_factory=list)
     training_time_seconds: float = Field(..., ge=0.0)
     prediction_time_ms: float = Field(..., ge=0.0)
     selected_features_count: int = Field(default=0, ge=0)
@@ -43,10 +44,10 @@ class ModelExperimentSummary(BaseModel):
     id: int = Field(..., ge=1)
     model_name: str
     algorithm: str
-    dataset_id: Optional[int] = None
+    dataset_id: int | None = None
     feature_strategy: str
     metrics: ModelEvaluationMetrics
-    artifact_path: Optional[str] = None
+    artifact_path: str | None = None
     is_best_model: bool = False
     created_at: datetime
 
@@ -58,7 +59,7 @@ class CompareModelsRequest(BaseModel):
     """Request payload to train and benchmark all 4 ML models simultaneously."""
 
     dataset_id: int = Field(..., ge=1)
-    algorithms: List[MLAlgorithm] = Field(
+    algorithms: list[MLAlgorithm] = Field(
         default_factory=lambda: [
             MLAlgorithm.LOGISTIC_REGRESSION,
             MLAlgorithm.DECISION_TREE,
@@ -74,7 +75,7 @@ class ModelComparisonResult(BaseModel):
     """Leaderboard comparison result across all 4 machine learning models."""
 
     dataset_id: int
-    models: List[ModelExperimentSummary]
+    models: list[ModelExperimentSummary]
     best_model_id: int
     best_model_name: str
     best_f1_score: float = Field(..., ge=0.0, le=1.0)
@@ -91,4 +92,4 @@ class LeaderboardResponse(BaseModel):
     """Ranked leaderboard of active model experiments."""
 
     total_models: int = Field(..., ge=0)
-    top_models: List[ModelExperimentSummary] = Field(default_factory=list)
+    top_models: list[ModelExperimentSummary] = Field(default_factory=list)

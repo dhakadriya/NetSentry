@@ -1,10 +1,11 @@
 """Confusion matrix formatter and diagnostic analysis utilities."""
 
-from typing import Any, Dict, List
+from typing import Any
+
 import numpy as np
 
 
-def format_confusion_matrix(cm: List[List[int]]) -> Dict[str, Any]:
+def format_confusion_matrix(cm: list[list[int]]) -> dict[str, Any]:
     """Generates structured confusion matrix diagnostics, rates, and normalized percentages."""
     arr = np.array(cm, dtype=int)
     tn = int(arr[0, 0])

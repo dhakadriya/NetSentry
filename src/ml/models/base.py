@@ -1,15 +1,16 @@
 """Abstract base class for all NetSentry intrusion detection machine learning models."""
 
+import time
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
-import time
+from typing import Any
+
 import joblib
 import numpy as np
 import pandas as pd
 
 from src.core.constants import MLAlgorithm
-from src.core.exceptions import ModelTrainingError, ModelNotTrainedError, PredictionError
+from src.core.exceptions import ModelNotTrainedError, ModelTrainingError
 
 
 class BaseNetSentryModel(ABC):
@@ -20,10 +21,10 @@ class BaseNetSentryModel(ABC):
         self.algorithm = algorithm
         self.hyperparameters = hyperparameters
         self.model_: Any = None
-        self.feature_names_: List[str] = []
+        self.feature_names_: list[str] = []
         self.training_time_seconds: float = 0.0
         self.prediction_time_ms: float = 0.0
-        self.metrics_: Dict[str, Any] = {}
+        self.metrics_: dict[str, Any] = {}
         self.model_version: str = "1.0.0"
 
     @property
@@ -93,7 +94,7 @@ class BaseNetSentryModel(ABC):
                 df[col] = 0.0
         return df[self.feature_names_]
 
-    def save(self, output_path: Union[str, Path]) -> Path:
+    def save(self, output_path: str | Path) -> Path:
         """Serializes trained model artifact to disk."""
         path = Path(output_path)
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -101,7 +102,7 @@ class BaseNetSentryModel(ABC):
         return path
 
     @classmethod
-    def load(cls, file_path: Union[str, Path]) -> "BaseNetSentryModel":
+    def load(cls, file_path: str | Path) -> "BaseNetSentryModel":
         """Loads serialized model instance from disk."""
         path = Path(file_path)
         if not path.exists():

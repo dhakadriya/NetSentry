@@ -1,34 +1,36 @@
 """Unit tests for NetSentry core configuration, constants, logging, and security functions."""
 
-import pytest
 import logging
 from pathlib import Path
-from src.core.config import Settings, get_settings
+
+import pytest
+
+from src.core.config import get_settings
 from src.core.constants import (
+    ATTACK_CATEGORIES,
+    DEFAULT_SERVICE_PORTS,
+    MITRE_ATTACK_MAPPING,
     MLAlgorithm,
     ThreatSeverity,
     TrafficClass,
-    ATTACK_CATEGORIES,
-    MITRE_ATTACK_MAPPING,
-    DEFAULT_SERVICE_PORTS,
 )
 from src.core.exceptions import (
-    SecurityViolationError,
-    UnsupportedProtocolError,
     FeatureDimensionMismatchError,
     ModelNotTrainedError,
     RateLimitExceededError,
+    SecurityViolationError,
+    UnsupportedProtocolError,
 )
+from src.core.logger import get_logger, get_utc_now_iso, log_ml_event, log_security_audit
 from src.core.security import (
     compute_sha256,
+    is_safe_path,
     safe_join_path,
     sanitize_filename,
+    strip_ansi_sequences,
     validate_file_size,
     validate_mime_type,
-    is_safe_path,
-    strip_ansi_sequences,
 )
-from src.core.logger import get_logger, log_security_audit, log_ml_event, get_utc_now_iso
 
 
 def test_settings_initialization():

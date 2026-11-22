@@ -2,14 +2,14 @@
 
 import time
 from pathlib import Path
-from fastapi import APIRouter, Depends, HTTPException, status
+
 import joblib
 import pandas as pd
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from src.api.deps import get_db_session
 from src.core.constants import ATTACK_SEVERITY_MAP, ThreatSeverity
-from src.core.exceptions import PredictionError
 from src.database.crud.alert_repo import create_alert
 from src.database.crud.experiment_repo import get_best_model, get_experiment_by_id
 from src.schemas.prediction import SinglePacketPredictionRequest, SinglePredictionResponse
