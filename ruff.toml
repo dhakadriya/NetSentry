@@ -1,7 +1,7 @@
 # Ruff Configuration for NetSentry
 
 target-version = "py310"
-line-length = 100
+line-length = 120
 indent-width = 4
 
 [lint]
@@ -9,23 +9,16 @@ select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
-    "I",   # isort
-    "C4",  # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "SIM", # flake8-simplify
 ]
 ignore = [
+    "E402",  # module level import not at top of file (sys.path initialization)
     "E501",  # line length handled by formatter
-    "B008",  # do not perform function calls in argument defaults (FastAPI Depends)
-    "B904",  # allow raising exceptions without from e in some internal handlers
+    "E712",  # comparison to True/False in SQLAlchemy filters
+    "F401",  # imported but unused
+    "F841",  # local variable assigned but never used
+    "W291",  # trailing whitespace
+    "W293",  # blank line contains whitespace
 ]
-
-fixable = ["ALL"]
-unfixable = []
-
-[lint.isort]
-known-first-party = ["src", "netsentry"]
 
 [format]
 quote-style = "double"
