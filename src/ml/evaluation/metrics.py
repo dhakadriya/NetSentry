@@ -6,12 +6,32 @@ from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
     f1_score,
+    matthews_corrcoef,
     precision_score,
     recall_score,
     roc_auc_score,
 )
 
 from src.schemas.model import ModelEvaluationMetrics
+
+
+def calculate_specificity(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Calculates True Negative Rate (Specificity) to measure benign traffic preservation."""
+    y_t = np.asarray(y_true).astype(int)
+    y_p = np.asarray(y_pred).astype(int)
+    cm = confusion_matrix(y_t, y_p, labels=[0, 1])
+    tn, fp, _, _ = cm.ravel()
+    return float(tn / (tn + fp)) if (tn + fp) > 0 else 0.0
+
+
+def calculate_mcc(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+    """Calculates Matthews Correlation Coefficient (MCC) for imbalanced cyber threat datasets."""
+    y_t = np.asarray(y_true).astype(int)
+    y_p = np.asarray(y_pred).astype(int)
+    try:
+        return float(matthews_corrcoef(y_t, y_p))
+    except Exception:
+        return 0.0
 
 
 def calculate_evaluation_metrics(
