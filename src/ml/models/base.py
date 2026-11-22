@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from src.core.constants import MLAlgorithm
-from src.core.exceptions import ModelTrainingError, PredictionError
+from src.core.exceptions import ModelTrainingError, ModelNotTrainedError, PredictionError
 
 
 class BaseNetSentryModel(ABC):
@@ -24,6 +24,17 @@ class BaseNetSentryModel(ABC):
         self.training_time_seconds: float = 0.0
         self.prediction_time_ms: float = 0.0
         self.metrics_: Dict[str, Any] = {}
+        self.model_version: str = "1.0.0"
+
+    @property
+    def is_fitted(self) -> bool:
+        """Indicates whether the model has undergone successful training."""
+        return self.model_ is not None and len(self.feature_names_) > 0
+
+    @property
+    def n_features_in_(self) -> int:
+        """Returns the number of input features expected by the model."""
+        return len(self.feature_names_)
 
     @abstractmethod
     def _create_estimator(self) -> Any:
@@ -45,8 +56,8 @@ class BaseNetSentryModel(ABC):
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
         """Predicts binary intrusion class (0: Normal, 1: Attack)."""
-        if self.model_ is None:
-            raise PredictionError(f"Model {self.model_name} has not been trained.")
+        if not self.is_fitted:
+            raise ModelNotTrainedError(f"Model {self.model_name} has not been trained.")
 
         # Ensure correct column ordering
         X_aligned = self._align_features(X)
@@ -59,8 +70,8 @@ class BaseNetSentryModel(ABC):
 
     def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
         """Predicts probability scores for intrusion classification."""
-        if self.model_ is None:
-            raise PredictionError(f"Model {self.model_name} has not been trained.")
+        if not self.is_fitted:
+            raise ModelNotTrainedError(f"Model {self.model_name} has not been trained.")
 
         X_aligned = self._align_features(X)
         if hasattr(self.model_, "predict_proba"):
