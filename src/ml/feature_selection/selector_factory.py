@@ -1,6 +1,6 @@
 """Unified factory interface for selecting and instantiating feature selection strategies."""
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -25,17 +25,28 @@ class PassThroughSelector(BaseEstimator, TransformerMixin):
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         return X.copy()
 
-    def get_feature_names_out(self, input_features=None) -> List[str]:
+    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
         return self.selected_features_
+
+
+def list_available_strategies() -> Dict[str, str]:
+    """Returns supported feature selection strategies with descriptions."""
+    return {
+        FeatureSelectionStrategy.NONE.value: "Preserves all features without reduction.",
+        FeatureSelectionStrategy.VARIANCE_THRESHOLD.value: "Removes low-variance or near-constant features.",
+        FeatureSelectionStrategy.CORRELATION_FILTER.value: "Eliminates highly collinear and redundant features.",
+        FeatureSelectionStrategy.RF_IMPORTANCE.value: "Ranks features by Random Forest Gini impurity importance.",
+        FeatureSelectionStrategy.MUTUAL_INFO.value: "Measures mutual information entropy dependency against target.",
+    }
 
 
 def get_feature_selector(
     strategy: FeatureSelectionStrategy = FeatureSelectionStrategy.NONE,
     top_k: int = 20,
-    **kwargs,
+    **kwargs: Any,
 ) -> BaseEstimator:
     """Factory creating configured feature selector instance corresponding to strategy."""
-    strategy_val = getattr(strategy, "value", str(strategy)).lower()
+    strategy_val = getattr(strategy, "value", str(strategy)).strip().lower()
 
     if strategy_val in (FeatureSelectionStrategy.NONE.value, "none"):
         return PassThroughSelector()
@@ -49,10 +60,12 @@ def get_feature_selector(
         return CorrelationFilterSelector(threshold=threshold, min_features=kwargs.get("min_features", 8))
 
     elif strategy_val in (FeatureSelectionStrategy.RF_IMPORTANCE.value, "rf_importance"):
-        return RandomForestImportanceSelector(top_k=top_k, random_state=kwargs.get("random_state", 42))
+        k = max(1, top_k)
+        return RandomForestImportanceSelector(top_k=k, random_state=kwargs.get("random_state", 42))
 
     elif strategy_val in (FeatureSelectionStrategy.MUTUAL_INFO.value, "mutual_info"):
-        return MutualInformationSelector(top_k=top_k, random_state=kwargs.get("random_state", 42))
+        k = max(1, top_k)
+        return MutualInformationSelector(top_k=k, random_state=kwargs.get("random_state", 42))
 
     else:
         raise FeatureSelectionError(f"Unsupported feature selection strategy: '{strategy}'")
