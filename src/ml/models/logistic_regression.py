@@ -1,6 +1,6 @@
 """Logistic Regression classifier implementation with regularization and coefficient analysis."""
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from sklearn.linear_model import LogisticRegression
 
 from src.core.constants import MLAlgorithm
@@ -14,12 +14,13 @@ class LogisticRegressionModel(BaseNetSentryModel):
         self,
         model_name: str = "LogisticRegression-NIDS",
         C: float = 1.0,
-        penalty: str = "l2",
+        penalty: Optional[str] = None,
         solver: str = "lbfgs",
         max_iter: int = 1000,
+        tol: float = 1e-4,
         class_weight: str = "balanced",
         random_state: int = 42,
-        **kwargs,
+        **kwargs: Any,
     ):
         super().__init__(
             model_name=model_name,
@@ -28,6 +29,7 @@ class LogisticRegressionModel(BaseNetSentryModel):
             penalty=penalty,
             solver=solver,
             max_iter=max_iter,
+            tol=tol,
             class_weight=class_weight,
             random_state=random_state,
             **kwargs,
@@ -36,21 +38,25 @@ class LogisticRegressionModel(BaseNetSentryModel):
         self.penalty = penalty
         self.solver = solver
         self.max_iter = max_iter
+        self.tol = tol
         self.class_weight = class_weight
         self.random_state = random_state
 
     def _create_estimator(self) -> LogisticRegression:
-        return LogisticRegression(
-            C=self.C,
-            penalty=self.penalty,
-            solver=self.solver,
-            max_iter=self.max_iter,
-            class_weight=self.class_weight,
-            random_state=self.random_state,
-        )
+        params: Dict[str, Any] = {
+            "C": self.C,
+            "solver": self.solver,
+            "max_iter": self.max_iter,
+            "tol": self.tol,
+            "class_weight": self.class_weight,
+            "random_state": self.random_state,
+        }
+        if self.penalty is not None:
+            params["penalty"] = self.penalty
+        return LogisticRegression(**params)
 
     def get_feature_coefficients(self) -> Dict[str, float]:
-        """Returns feature weights / coefficients learned by the model."""
+        """Returns feature weights / coefficients learned by the model sorted by magnitude."""
         if self.model_ is None or not hasattr(self.model_, "coef_"):
             return {}
         coefs = self.model_.coef_[0]
