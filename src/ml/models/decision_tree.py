@@ -1,6 +1,6 @@
 """Decision Tree classifier implementation with tree depth and split optimization."""
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from sklearn.tree import DecisionTreeClassifier
 
 from src.core.constants import MLAlgorithm
@@ -17,9 +17,10 @@ class DecisionTreeModel(BaseNetSentryModel):
         max_depth: Optional[int] = 12,
         min_samples_split: int = 5,
         min_samples_leaf: int = 2,
+        ccp_alpha: float = 0.0,
         class_weight: str = "balanced",
         random_state: int = 42,
-        **kwargs,
+        **kwargs: Any,
     ):
         super().__init__(
             model_name=model_name,
@@ -28,6 +29,7 @@ class DecisionTreeModel(BaseNetSentryModel):
             max_depth=max_depth,
             min_samples_split=min_samples_split,
             min_samples_leaf=min_samples_leaf,
+            ccp_alpha=ccp_alpha,
             class_weight=class_weight,
             random_state=random_state,
             **kwargs,
@@ -36,8 +38,23 @@ class DecisionTreeModel(BaseNetSentryModel):
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_samples_leaf = min_samples_leaf
+        self.ccp_alpha = ccp_alpha
         self.class_weight = class_weight
         self.random_state = random_state
+
+    @property
+    def tree_depth(self) -> int:
+        """Returns the actual depth of the fitted decision tree."""
+        if self.model_ is not None and hasattr(self.model_, "get_depth"):
+            return int(self.model_.get_depth())
+        return 0
+
+    @property
+    def n_leaves(self) -> int:
+        """Returns the total number of leaves in the fitted decision tree."""
+        if self.model_ is not None and hasattr(self.model_, "get_n_leaves"):
+            return int(self.model_.get_n_leaves())
+        return 0
 
     def _create_estimator(self) -> DecisionTreeClassifier:
         return DecisionTreeClassifier(
@@ -45,6 +62,7 @@ class DecisionTreeModel(BaseNetSentryModel):
             max_depth=self.max_depth,
             min_samples_split=self.min_samples_split,
             min_samples_leaf=self.min_samples_leaf,
+            ccp_alpha=self.ccp_alpha,
             class_weight=self.class_weight,
             random_state=self.random_state,
         )
