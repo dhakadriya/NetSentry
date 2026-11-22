@@ -14,16 +14,20 @@ class DataCleaner(BaseEstimator, TransformerMixin):
         drop_duplicates: bool = False,
         fill_numerical: str = "median",
         fill_categorical: str = "unknown",
+        clip_non_negative: bool = True,
     ):
         self.drop_duplicates = drop_duplicates
         self.fill_numerical = fill_numerical
         self.fill_categorical = fill_categorical
+        self.clip_non_negative = clip_non_negative
         self.numerical_fill_values_: dict = {}
         self.categorical_fill_values_: dict = {}
+        self.feature_names_in_: List[str] = []
 
     def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None) -> "DataCleaner":
         """Computes imputation values from training data."""
         df = X.copy()
+        self.feature_names_in_ = list(df.columns)
 
         # Clean infinities first
         df.replace([np.inf, -np.inf], np.nan, inplace=True)
@@ -43,7 +47,9 @@ class DataCleaner(BaseEstimator, TransformerMixin):
         cat_cols = df.select_dtypes(exclude=[np.number]).columns
         for col in cat_cols:
             mode_vals = df[col].dropna().mode()
-            self.categorical_fill_values_[col] = str(mode_vals.iloc[0]) if len(mode_vals) > 0 else self.fill_categorical
+            self.categorical_fill_values_[col] = (
+                str(mode_vals.iloc[0]) if len(mode_vals) > 0 else self.fill_categorical
+            )
 
         return self
 
@@ -67,7 +73,9 @@ class DataCleaner(BaseEstimator, TransformerMixin):
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors="coerce").fillna(fill_val)
                 # Ensure no negative durations or byte counts
-                if col in ["dur", "sbytes", "dbytes", "Spkts", "Dpkts", "Sload", "Dload"]:
+                if self.clip_non_negative and col in [
+                    "dur", "sbytes", "dbytes", "Spkts", "Dpkts", "Sload", "Dload"
+                ]:
                     df[col] = np.maximum(df[col], 0.0)
 
         # Impute categorical columns
@@ -79,3 +87,7 @@ class DataCleaner(BaseEstimator, TransformerMixin):
             df.drop_duplicates(inplace=True)
 
         return df
+
+    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+        """Returns feature names after cleaning transformation."""
+        return input_features if input_features is not None else self.feature_names_in_
