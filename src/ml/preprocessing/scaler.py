@@ -10,9 +10,17 @@ from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 class NetworkFeatureScaler(BaseEstimator, TransformerMixin):
     """Scales numerical flow features while preserving DataFrame structure and column headers."""
 
-    def __init__(self, method: str = "standard", exclude_columns: Optional[List[str]] = None):
+    def __init__(
+        self,
+        method: str = "standard",
+        exclude_columns: Optional[List[str]] = None,
+        clip_extreme_values: bool = True,
+        clip_range: tuple = (-10.0, 10.0),
+    ):
         self.method = method.lower()
         self.exclude_columns = exclude_columns or ["label", "Label", "attack_cat"]
+        self.clip_extreme_values = clip_extreme_values
+        self.clip_range = clip_range
         self.scaler_: Optional[BaseEstimator] = None
         self.scaled_columns_: List[str] = []
 
@@ -36,7 +44,7 @@ class NetworkFeatureScaler(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
-        """Applies normalization to numerical features."""
+        """Applies normalization to numerical features with outlier clipping safeguards."""
         df = X.copy()
 
         if not self.scaled_columns_ or self.scaler_ is None:
@@ -46,6 +54,12 @@ class NetworkFeatureScaler(BaseEstimator, TransformerMixin):
         active_cols = [c for c in self.scaled_columns_ if c in df.columns]
         if active_cols:
             scaled_arr = self.scaler_.transform(df[active_cols])
+            if self.clip_extreme_values and self.method == "standard":
+                scaled_arr = np.clip(scaled_arr, self.clip_range[0], self.clip_range[1])
             df[active_cols] = scaled_arr
 
         return df
+
+    def get_feature_names_out(self, input_features: Optional[List[str]] = None) -> List[str]:
+        """Returns the list of scaled feature columns."""
+        return self.scaled_columns_
