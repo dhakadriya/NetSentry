@@ -44,6 +44,11 @@ engine = get_engine()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+def get_session_factory() -> sessionmaker:
+    """Returns the SQLAlchemy sessionmaker factory instance."""
+    return SessionLocal
+
+
 def get_db() -> Generator[Session, None, None]:
     """Dependency generator for database sessions in FastAPI routes."""
     db = SessionLocal()
